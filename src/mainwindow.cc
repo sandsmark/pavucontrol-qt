@@ -1098,18 +1098,7 @@ void MainWindow::reallyUpdateDeviceVisibility()
         noSourcesLabel->hide();
     }
 
-    /* Hmm, if I don't call hide()/show() here some widgets will never
-     * get their proper space allocated */
-    sinksVBox->hide();
-    sinksVBox->show();
-    sourcesVBox->hide();
-    sourcesVBox->show();
-    streamsVBox->hide();
-    streamsVBox->show();
-    recsVBox->hide();
-    recsVBox->show();
-    cardsVBox->hide();
-    cardsVBox->show();
+    adjustSize();
 }
 
 void MainWindow::removeCard(uint32_t index)
