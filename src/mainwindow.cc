@@ -83,16 +83,16 @@ MainWindow::MainWindow(QWidget *parent):
 
     setupUi(this);
 
-    sinkInputTypeComboBox->setCurrentIndex((int) showSinkInputType);
-    sourceOutputTypeComboBox->setCurrentIndex((int) showSourceOutputType);
-    sinkTypeComboBox->setCurrentIndex((int) showSinkType);
-    sourceTypeComboBox->setCurrentIndex((int) showSourceType);
+    m_sinkInputTypeComboBox->setCurrentIndex((int) showSinkInputType);
+    m_sourceOutputTypeComboBox->setCurrentIndex((int) showSourceOutputType);
+    m_sinkTypeComboBox->setCurrentIndex((int) showSinkType);
+    m_sourceTypeComboBox->setCurrentIndex((int) showSourceType);
 
-    connect(sinkInputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSinkInputTypeComboBoxChanged);
-    connect(sourceOutputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceOutputTypeComboBoxChanged);
-    connect(sinkTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSinkTypeComboBoxChanged);
-    connect(sourceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceTypeComboBoxChanged);
-    connect(showVolumeMetersCheckButton, &QCheckBox::toggled, this, &MainWindow::onShowVolumeMetersCheckButtonToggled);
+    connect(m_sinkInputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSinkInputTypeComboBoxChanged);
+    connect(m_sourceOutputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceOutputTypeComboBoxChanged);
+    connect(m_sinkTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSinkTypeComboBoxChanged);
+    connect(m_sourceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceTypeComboBoxChanged);
+    connect(m_showVolumeMetersCheckButton, &QCheckBox::toggled, this, &MainWindow::onShowVolumeMetersCheckButtonToggled);
 
     QAction *quit = new QAction{this};
     connect(quit, &QAction::triggered, this, &QWidget::close);
@@ -101,7 +101,7 @@ MainWindow::MainWindow(QWidget *parent):
 
     const QSettings config;
 
-    showVolumeMetersCheckButton->setChecked(config.value(QStringLiteral("window/showVolumeMeters"), true).toBool());
+    m_showVolumeMetersCheckButton->setChecked(config.value(QStringLiteral("window/showVolumeMeters"), true).toBool());
 
     const QSize last_size  = config.value(QStringLiteral("window/size")).toSize();
 
@@ -112,41 +112,41 @@ MainWindow::MainWindow(QWidget *parent):
     const QVariant sinkInputTypeSelection = config.value(QStringLiteral("window/sinkInputType"));
 
     if (sinkInputTypeSelection.isValid()) {
-        sinkInputTypeComboBox->setCurrentIndex(sinkInputTypeSelection.toInt());
+        m_sinkInputTypeComboBox->setCurrentIndex(sinkInputTypeSelection.toInt());
     }
 
     const QVariant sourceOutputTypeSelection = config.value(QStringLiteral("window/sourceOutputType"));
 
     if (sourceOutputTypeSelection.isValid()) {
-        sourceOutputTypeComboBox->setCurrentIndex(sourceOutputTypeSelection.toInt());
+        m_sourceOutputTypeComboBox->setCurrentIndex(sourceOutputTypeSelection.toInt());
     }
 
     const QVariant sinkTypeSelection = config.value(QStringLiteral("window/sinkType"));
 
     if (sinkTypeSelection.isValid()) {
-        sinkTypeComboBox->setCurrentIndex(sinkTypeSelection.toInt());
+        m_sinkTypeComboBox->setCurrentIndex(sinkTypeSelection.toInt());
     }
 
     const QVariant sourceTypeSelection = config.value(QStringLiteral("window/sourceType"));
 
     if (sourceTypeSelection.isValid()) {
-        sourceTypeComboBox->setCurrentIndex(sourceTypeSelection.toInt());
+        m_sourceTypeComboBox->setCurrentIndex(sourceTypeSelection.toInt());
     }
 
     /* Hide first and show when we're connected */
-    notebook->hide();
-    connectingLabel->show();
+    m_notebook->hide();
+    m_connectingLabel->show();
 }
 
 MainWindow::~MainWindow()
 {
     QSettings config;
     config.setValue(QStringLiteral("window/size"), size());
-    config.setValue(QStringLiteral("window/sinkInputType"), sinkInputTypeComboBox->currentIndex());
-    config.setValue(QStringLiteral("window/sourceOutputType"), sourceOutputTypeComboBox->currentIndex());
-    config.setValue(QStringLiteral("window/sinkType"), sinkTypeComboBox->currentIndex());
-    config.setValue(QStringLiteral("window/sourceType"), sourceTypeComboBox->currentIndex());
-    config.setValue(QStringLiteral("window/showVolumeMeters"), showVolumeMetersCheckButton->isChecked());
+    config.setValue(QStringLiteral("window/sinkInputType"), m_sinkInputTypeComboBox->currentIndex());
+    config.setValue(QStringLiteral("window/sourceOutputType"), m_sourceOutputTypeComboBox->currentIndex());
+    config.setValue(QStringLiteral("window/sinkType"), m_sinkTypeComboBox->currentIndex());
+    config.setValue(QStringLiteral("window/sourceType"), m_sourceTypeComboBox->currentIndex());
+    config.setValue(QStringLiteral("window/showVolumeMeters"), m_showVolumeMetersCheckButton->isChecked());
 
     clientNames.clear();
 }
@@ -220,7 +220,7 @@ void MainWindow::updateCard(const pa_card_info &info)
         w = cardWidgets[info.index];
     } else {
         cardWidgets[info.index] = w = new CardWidget(this);
-        cardsVBox->layout()->addWidget(w);
+        m_cardsVBox->layout()->addWidget(w);
         w->index = info.index;
         is_new = true;
     }
@@ -354,13 +354,13 @@ bool MainWindow::updateSink(const pa_sink_info &info)
     } else {
         sinkWidgets[info.index] = w = new SinkWidget(this);
         w->setChannelMap(info.channel_map, !!(info.flags & PA_SINK_DECIBEL_VOLUME));
-        sinksVBox->layout()->addWidget(w);
+        m_sinksVBox->layout()->addWidget(w);
         w->index = info.index;
         w->monitor_index = info.monitor_source;
         is_new = true;
 
         w->setBaseVolume(info.base_volume);
-        w->setVolumeMeterVisible(showVolumeMetersCheckButton->isChecked());
+        w->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
     }
 
     w->updating = true;
@@ -497,7 +497,7 @@ pa_stream *MainWindow::createMonitorStreamForSource(uint32_t source_idx, uint32_
 
     flags = (pa_stream_flags_t)(PA_STREAM_DONT_MOVE | PA_STREAM_PEAK_DETECT | PA_STREAM_ADJUST_LATENCY |
                                 (suspend ? PA_STREAM_DONT_INHIBIT_AUTO_SUSPEND : PA_STREAM_NOFLAGS) |
-                                (!showVolumeMetersCheckButton->isChecked() ? PA_STREAM_START_CORKED : PA_STREAM_NOFLAGS));
+                                (!m_showVolumeMetersCheckButton->isChecked() ? PA_STREAM_START_CORKED : PA_STREAM_NOFLAGS));
 
     if (pa_stream_connect_record(s, t, &attr, flags) < 0) {
         show_error(tr("Failed to connect monitoring stream").toUtf8().constData());
@@ -534,13 +534,13 @@ void MainWindow::updateSource(const pa_source_info &info)
     } else {
         sourceWidgets[info.index] = w = new SourceWidget(this);
         w->setChannelMap(info.channel_map, !!(info.flags & PA_SOURCE_DECIBEL_VOLUME));
-        sourcesVBox->layout()->addWidget(w);
+        m_sourcesVBox->layout()->addWidget(w);
 
         w->index = info.index;
         is_new = true;
 
         w->setBaseVolume(info.base_volume);
-        w->setVolumeMeterVisible(showVolumeMetersCheckButton->isChecked());
+        w->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
 
         if (pa_context_get_server_protocol_version(get_context()) >= 13) {
             w->peak = createMonitorStreamForSource(info.index, -1, !!(info.flags & PA_SOURCE_NETWORK));
@@ -671,12 +671,12 @@ void MainWindow::updateSinkInput(const pa_sink_input_info &info)
     } else {
         sinkInputWidgets[info.index] = w = new SinkInputWidget(this);
         w->setChannelMap(info.channel_map, true);
-        streamsVBox->layout()->addWidget(w);
+        m_streamsVBox->layout()->addWidget(w);
 
         w->index = info.index;
         w->clientIndex = info.client;
         is_new = true;
-        w->setVolumeMeterVisible(showVolumeMetersCheckButton->isChecked());
+        w->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
 
         if (pa_context_get_server_protocol_version(get_context()) >= 13) {
             createMonitorStreamForSinkInput(w, info.sink);
@@ -730,12 +730,12 @@ void MainWindow::updateSourceOutput(const pa_source_output_info &info)
     } else {
         sourceOutputWidgets[info.index] = w = new SourceOutputWidget(this);
         w->setChannelMap(info.channel_map, true);
-        recsVBox->layout()->addWidget(w);
+        m_recsVBox->layout()->addWidget(w);
 
         w->index = info.index;
         w->clientIndex = info.client;
         is_new = true;
-        w->setVolumeMeterVisible(showVolumeMetersCheckButton->isChecked());
+        w->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
     }
 
     w->updating = true;
@@ -825,7 +825,7 @@ bool MainWindow::createEventRoleWidget()
     };
 
     eventRoleWidget = new RoleWidget(this);
-    streamsVBox->layout()->addWidget(eventRoleWidget);
+    m_streamsVBox->layout()->addWidget(eventRoleWidget);
     eventRoleWidget->role = "sink-input-by-media-role:event";
     eventRoleWidget->setChannelMap(cm, true);
 
@@ -959,11 +959,11 @@ void MainWindow::setConnectionState(bool connected)
         m_connected = connected;
 
         if (m_connected) {
-            connectingLabel->hide();
-            notebook->show();
+            m_connectingLabel->hide();
+            m_notebook->show();
         } else {
-            notebook->hide();
-            connectingLabel->show();
+            m_notebook->hide();
+            m_connectingLabel->show();
         }
     }
 }
@@ -1011,9 +1011,9 @@ void MainWindow::reallyUpdateDeviceVisibility()
     }
 
     if (is_empty) {
-        noStreamsLabel->show();
+        m_noStreamsLabel->show();
     } else {
-        noStreamsLabel->hide();
+        m_noStreamsLabel->hide();
     }
 
     is_empty = true;
@@ -1038,9 +1038,9 @@ void MainWindow::reallyUpdateDeviceVisibility()
     }
 
     if (is_empty) {
-        noRecsLabel->show();
+        m_noRecsLabel->show();
     } else {
-        noRecsLabel->hide();
+        m_noRecsLabel->hide();
     }
 
     is_empty = true;
@@ -1057,9 +1057,9 @@ void MainWindow::reallyUpdateDeviceVisibility()
     }
 
     if (is_empty) {
-        noSinksLabel->show();
+        m_noSinksLabel->show();
     } else {
-        noSinksLabel->hide();
+        m_noSinksLabel->hide();
     }
 
     is_empty = true;
@@ -1072,9 +1072,9 @@ void MainWindow::reallyUpdateDeviceVisibility()
     }
 
     if (is_empty) {
-        noCardsLabel->show();
+        m_noCardsLabel->show();
     } else {
-        noCardsLabel->hide();
+        m_noCardsLabel->hide();
     }
 
     is_empty = true;
@@ -1093,9 +1093,9 @@ void MainWindow::reallyUpdateDeviceVisibility()
     }
 
     if (is_empty) {
-        noSourcesLabel->show();
+        m_noSourcesLabel->show();
     } else {
-        noSourcesLabel->hide();
+        m_noSourcesLabel->hide();
     }
 
     adjustSize();
@@ -1198,17 +1198,17 @@ void MainWindow::setConnectingMessage(const char *string)
     }
 
     markup += "</i>";
-    connectingLabel->setText(QString::fromUtf8(markup));
+    m_connectingLabel->setText(QString::fromUtf8(markup));
 }
 
 void MainWindow::onSinkTypeComboBoxChanged(int index)
 {
     Q_UNUSED(index);
 
-    showSinkType = (SinkType) sinkTypeComboBox->currentIndex();
+    showSinkType = (SinkType) m_sinkTypeComboBox->currentIndex();
 
     if (showSinkType == (SinkType) - 1) {
-        sinkTypeComboBox->setCurrentIndex((int) SINK_ALL);
+        m_sinkTypeComboBox->setCurrentIndex((int) SINK_ALL);
     }
 
     updateDeviceVisibility();
@@ -1218,10 +1218,10 @@ void MainWindow::onSourceTypeComboBoxChanged(int index)
 {
     Q_UNUSED(index);
 
-    showSourceType = (SourceType) sourceTypeComboBox->currentIndex();
+    showSourceType = (SourceType) m_sourceTypeComboBox->currentIndex();
 
     if (showSourceType == (SourceType) - 1) {
-        sourceTypeComboBox->setCurrentIndex((int) SOURCE_NO_MONITOR);
+        m_sourceTypeComboBox->setCurrentIndex((int) SOURCE_NO_MONITOR);
     }
 
     updateDeviceVisibility();
@@ -1231,10 +1231,10 @@ void MainWindow::onSinkInputTypeComboBoxChanged(int index)
 {
     Q_UNUSED(index);
 
-    showSinkInputType = (SinkInputType) sinkInputTypeComboBox->currentIndex();
+    showSinkInputType = (SinkInputType) m_sinkInputTypeComboBox->currentIndex();
 
     if (showSinkInputType == (SinkInputType) - 1) {
-        sinkInputTypeComboBox->setCurrentIndex((int) SINK_INPUT_CLIENT);
+        m_sinkInputTypeComboBox->setCurrentIndex((int) SINK_INPUT_CLIENT);
     }
 
     updateDeviceVisibility();
@@ -1244,10 +1244,10 @@ void MainWindow::onSourceOutputTypeComboBoxChanged(int index)
 {
     Q_UNUSED(index);
 
-    showSourceOutputType = (SourceOutputType) sourceOutputTypeComboBox->currentIndex();
+    showSourceOutputType = (SourceOutputType) m_sourceOutputTypeComboBox->currentIndex();
 
     if (showSourceOutputType == (SourceOutputType) - 1) {
-        sourceOutputTypeComboBox->setCurrentIndex((int) SOURCE_OUTPUT_CLIENT);
+        m_sourceOutputTypeComboBox->setCurrentIndex((int) SOURCE_OUTPUT_CLIENT);
     }
 
     updateDeviceVisibility();
@@ -1258,7 +1258,7 @@ void MainWindow::onShowVolumeMetersCheckButtonToggled(bool toggled)
 {
     Q_UNUSED(toggled);
 
-    bool state = showVolumeMetersCheckButton->isChecked();
+    bool state = m_showVolumeMetersCheckButton->isChecked();
     pa_operation *o;
 
     for (const std::pair<uint32_t, SinkWidget*> &sinkWidget : sinkWidgets) {

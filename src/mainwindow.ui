@@ -22,7 +22,7 @@
           <number>0</number>
       </property>
    <item>
-    <widget class="QTabWidget" name="notebook">
+    <widget class="QTabWidget" name="m_notebook">
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -36,7 +36,7 @@
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
-         <widget class="QWidget" name="streamsVBox">
+         <widget class="QWidget" name="m_streamsVBox">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -53,7 +53,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="QLabel" name="noStreamsLabel">
+            <widget class="QLabel" name="m_noStreamsLabel">
              <property name="text">
               <string>&lt;i&gt;No application is currently playing audio.&lt;/i&gt;</string>
              </property>
@@ -71,7 +71,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QComboBox" name="sinkInputTypeComboBox">
+        <widget class="QComboBox" name="m_sinkInputTypeComboBox">
          <item>
           <property name="text">
            <string>All Streams</string>
@@ -101,7 +101,7 @@
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
-         <widget class="QWidget" name="recsVBox">
+         <widget class="QWidget" name="m_recsVBox">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -118,7 +118,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QLabel" name="noRecsLabel">
+            <widget class="QLabel" name="m_noRecsLabel">
              <property name="text">
               <string>&lt;i&gt;No application is currently recording audio.&lt;/i&gt;</string>
              </property>
@@ -136,7 +136,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QComboBox" name="sourceOutputTypeComboBox">
+        <widget class="QComboBox" name="m_sourceOutputTypeComboBox">
          <item>
           <property name="text">
            <string>All Streams</string>
@@ -166,7 +166,7 @@
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
-         <widget class="QWidget" name="sinksVBox">
+         <widget class="QWidget" name="m_sinksVBox">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -183,7 +183,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QLabel" name="noSinksLabel">
+            <widget class="QLabel" name="m_noSinksLabel">
              <property name="text">
               <string>&lt;i&gt;No output devices available&lt;/i&gt;</string>
              </property>
@@ -201,7 +201,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QComboBox" name="sinkTypeComboBox">
+        <widget class="QComboBox" name="m_sinkTypeComboBox">
          <item>
           <property name="text">
            <string>All Output Devices</string>
@@ -231,7 +231,7 @@
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
-         <widget class="QWidget" name="sourcesVBox">
+         <widget class="QWidget" name="m_sourcesVBox">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -248,7 +248,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
-            <widget class="QLabel" name="noSourcesLabel">
+            <widget class="QLabel" name="m_noSourcesLabel">
              <property name="text">
               <string>&lt;i&gt;No input devices available&lt;/i&gt;</string>
              </property>
@@ -266,7 +266,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QComboBox" name="sourceTypeComboBox">
+        <widget class="QComboBox" name="m_sourceTypeComboBox">
          <item>
           <property name="text">
            <string>All Input Devices</string>
@@ -306,7 +306,7 @@
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
-         <widget class="QWidget" name="cardsVBox">
+         <widget class="QWidget" name="m_cardsVBox">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -323,7 +323,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_6">
            <item>
-            <widget class="QLabel" name="noCardsLabel">
+            <widget class="QLabel" name="m_noCardsLabel">
              <property name="text">
               <string>&lt;i&gt;No cards available for configuration&lt;/i&gt;</string>
              </property>
@@ -334,7 +334,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="showVolumeMetersCheckButton">
+        <widget class="QCheckBox" name="m_showVolumeMetersCheckButton">
          <property name="text">
           <string>Show volume meters</string>
          </property>
@@ -345,7 +345,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="connectingLabel">
+    <widget class="QLabel" name="m_connectingLabel">
      <property name="text">
       <string>...</string>
      </property>
