@@ -24,14 +24,17 @@
 #include "pavucontrol.h"
 
 #include "minimalstreamwidget.h"
-#include "ui_streamwidget.h"
+#include <QWidget>
 #include <QTimer>
 
 class MainWindow;
 class Channel;
 class QAction;
+class QGridLayout;
+class QLabel;
+class QToolButton;
 
-class StreamWidget : public MinimalStreamWidget, public Ui::StreamWidget
+class StreamWidget : public MinimalStreamWidget
 {
     Q_OBJECT
 public:
@@ -59,6 +62,16 @@ public:
 
     virtual void executeVolumeUpdate();
     virtual void onKill();
+
+    QLabel *iconImage;
+    QLabel *boldNameLabel;
+    QLabel *nameLabel;
+    QLabel *directionLabel;
+    QGridLayout *channelsGrid;
+    QToolButton *deviceButton;
+    QToolButton *muteToggleButton;
+    QToolButton *lockToggleButton;
+
 
 protected:
     MainWindow *mpMainWindow;

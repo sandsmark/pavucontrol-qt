@@ -24,6 +24,12 @@
 #include "channel.h"
 
 #include <QAction>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QLabel>
+#include <QIcon>
+#include <QToolButton>
 
 /*** StreamWidget ***/
 StreamWidget::StreamWidget(MainWindow *parent) :
@@ -31,8 +37,42 @@ StreamWidget::StreamWidget(MainWindow *parent) :
     mpMainWindow(parent),
     terminate{new QAction{tr("Terminate"), this}}
 {
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    setLayout(mainLayout);
+    channelsGrid = new QGridLayout;
+    mainLayout->addLayout(channelsGrid);
 
-    setupUi(this);
+    QHBoxLayout *topLayout = new QHBoxLayout;
+    mainLayout->addLayout(topLayout);
+
+    iconImage = new QLabel;
+    topLayout->addWidget(iconImage);
+    boldNameLabel = new QLabel;
+    topLayout->addWidget(boldNameLabel);
+
+    nameLabel = new QLabel(tr("Device Title"));
+    topLayout->addWidget(nameLabel);
+
+    topLayout->addStretch();
+
+    directionLabel = new QLabel;
+    topLayout->addWidget(directionLabel);
+
+    deviceButton = new QToolButton;
+    topLayout->addWidget(deviceButton);
+
+    muteToggleButton = new QToolButton;
+    topLayout->addWidget(muteToggleButton);
+    muteToggleButton->setToolTip(tr("Mute audio"));
+    muteToggleButton->setCheckable(true);
+    muteToggleButton->setIcon(QIcon::fromTheme("audio-volume-muted"));
+
+    lockToggleButton = new QToolButton;
+    lockToggleButton->setToolTip(tr("Lock channels together"));
+    lockToggleButton->setIcon(QIcon::fromTheme("changes-prevent-symbolic"));
+    lockToggleButton->setCheckable(true);
+    topLayout->addWidget(lockToggleButton);
+
     initPeakProgressBar(channelsGrid);
 
     timeout.setSingleShot(true);

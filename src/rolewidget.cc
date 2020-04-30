@@ -25,6 +25,8 @@
 #include "rolewidget.h"
 
 #include <pulse/ext-stream-restore.h>
+#include <QToolButton>
+#include <QLabel>
 
 RoleWidget::RoleWidget(MainWindow *parent) :
     StreamWidget(parent)
