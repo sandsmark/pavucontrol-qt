@@ -79,7 +79,6 @@ QWidget *createTab(QWidget *contentList, QLabel *defaultLabel, QWidget *typeSele
     tab = new QWidget;
     tabLayout = new QFormLayout(tab);
     tabLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
-    tab->setLayout(new QVBoxLayout);
 
     QScrollArea *scrollArea = new QScrollArea;
     scrollArea->setWidget(contentList);
