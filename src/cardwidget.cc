@@ -19,12 +19,44 @@
 ***/
 
 #include "cardwidget.h"
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QComboBox>
+#include <QLabel>
+#include <QCheckBox>
+
+#include "minimalstreamwidget.h"
 
 /*** CardWidget ***/
 CardWidget::CardWidget(QWidget *parent) :
     QWidget(parent)
 {
-    setupUi(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QHBoxLayout *topLayout = new QHBoxLayout;
+    mainLayout->addLayout(topLayout);
+
+    iconImage = new QLabel;
+    nameLabel = new QLabel(tr("Card Name"));
+
+    topLayout->addWidget(iconImage);
+    topLayout->addWidget(nameLabel);
+
+    QHBoxLayout *profileLayout = new QHBoxLayout;
+    mainLayout->addLayout(profileLayout);
+
+    profileCB = new QCheckBox;
+    profileLayout->addWidget(profileCB);
+
+    QLabel *profileLabel = new QLabel(tr("Profile:"));
+    profileLayout->addWidget(profileLabel);
+
+    profileList = new QComboBox;
+    profileLayout->addWidget(profileList);
+
+    mainLayout->addWidget(new Line);
+
+
+
     connect(profileList, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &CardWidget::onProfileChange);
     connect(profileCB, &QAbstractButton::toggled, this, &CardWidget::onProfileCheck);
 }

@@ -32,11 +32,6 @@ set(pavucontrol-qt_SRCS
     streamwidget.cc
 )
 
-set(pavucontrol-qt_UI
-    cardwidget.ui
-    devicewidget.ui
-)
-
 # Translations
 lxqt_translate_ts(pavucontrol-qt_QM_FILES
     UPDATE_TRANSLATIONS
@@ -44,7 +39,6 @@ lxqt_translate_ts(pavucontrol-qt_QM_FILES
     SOURCES
         ${pavucontrol-qt_HDRS}
         ${pavucontrol-qt_SRCS}
-        ${pavucontrol-qt_UI}
     INSTALL_DIR
         "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/translations"
 )

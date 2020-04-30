@@ -22,8 +22,11 @@
 #define cardwidget_h
 
 #include "pavucontrol.h"
-#include "ui_cardwidget.h"
 #include <QWidget>
+
+class QLabel;
+class QCheckBox;
+class QComboBox;
 
 class PortInfo
 {
@@ -37,7 +40,7 @@ public:
     std::vector<QByteArray> profiles;
 };
 
-class CardWidget : public QWidget, public Ui::CardWidget
+class CardWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -54,6 +57,11 @@ public:
     QByteArray lastActiveProfile;
     bool hasSinks;
     bool hasSources;
+
+    QLabel *iconImage;
+    QLabel *nameLabel;
+    QCheckBox *profileCB;
+    QComboBox *profileList;
 
     void prepareMenu();
 
