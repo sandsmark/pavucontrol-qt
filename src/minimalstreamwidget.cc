@@ -66,8 +66,8 @@ MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
     lockToggleButton->setChecked(true);
     topLayout->addWidget(lockToggleButton);
 
-    channelsGrid = new QGridLayout;
-    mainLayout->addLayout(channelsGrid);
+    channelsList = new QVBoxLayout;
+    mainLayout->addLayout(channelsList);
 
     peakProgressBar = new QProgressBar;
     peakProgressBar->setTextVisible(false);
@@ -75,9 +75,10 @@ MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
     peakProgressBar->hide();
 }
 
-void MinimalStreamWidget::initPeakProgressBar(QGridLayout *channelsGrid)
+void MinimalStreamWidget::initPeakProgressBar(QVBoxLayout *channelsGrid)
 {
-    channelsGrid->addWidget(peakProgressBar, channelsGrid->rowCount(), 0, 1, -1);
+    channelsGrid->addWidget(peakProgressBar);
+//    channelsGrid->addWidget(peakProgressBar, channelsGrid->rowCount(), 0, 1, -1);
 }
 
 #define DECAY_STEP .04

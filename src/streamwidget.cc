@@ -45,7 +45,7 @@ StreamWidget::StreamWidget(MainWindow *parent) :
 
     mainLayout->addWidget(new Line);
 
-    initPeakProgressBar(channelsGrid);
+    initPeakProgressBar(channelsList);
 
     timeout.setSingleShot(true);
     timeout.setInterval(100);
@@ -69,7 +69,7 @@ void StreamWidget::setChannelMap(const pa_channel_map &m, bool can_decibel)
     channelMap = m;
 
     for (int i = 0; i < m.channels; i++) {
-        Channel *ch = channels[i] = new Channel(channelsGrid);
+        Channel *ch = channels[i] = new Channel(channelsList);
         ch->channel = i;
         ch->can_decibel = can_decibel;
         ch->minimalStreamWidget = this;

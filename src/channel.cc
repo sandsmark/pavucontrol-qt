@@ -43,7 +43,7 @@ static inline pa_volume_t percent2PaVolume(int percent)
 
 /*** ChannelWidget ***/
 
-Channel::Channel(QGridLayout *parent) :
+Channel::Channel(QVBoxLayout *parent) :
     QObject(parent),
     can_decibel(false),
     volumeScaleEnabled(true),
@@ -53,10 +53,12 @@ Channel::Channel(QGridLayout *parent) :
     volumeScale = new QSlider(Qt::Horizontal, nullptr);
     volumeLabel = new QLabel(nullptr);
 
-    const int row = parent->rowCount();
-    parent->addWidget(channelLabel, row, 0);
-    parent->addWidget(volumeScale, row, 1);
-    parent->addWidget(volumeLabel, row, 2);
+//    const int row = parent->rowCount();
+    QHBoxLayout *row = new QHBoxLayout;
+    parent->addLayout(row);
+    row->addWidget(channelLabel);
+    row->addWidget(volumeScale);
+    row->addWidget(volumeLabel);
 
     // make the info font smaller
     QFont label_font = volumeLabel->font();

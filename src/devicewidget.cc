@@ -49,6 +49,8 @@ DeviceWidget::DeviceWidget(MainWindow *parent, const QByteArray &deviceType) :
 
     portSelect = new QWidget;
     QFormLayout *portSelectLayout = new QFormLayout(portSelect);
+    portSelectLayout->setMargin(0);
+    portSelectLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
     portList = new QComboBox;
     portSelectLayout->addRow(tr("<b>Port:</b>"), portList);
     mainLayout->addWidget(portSelect);
@@ -84,6 +86,7 @@ DeviceWidget::DeviceWidget(MainWindow *parent, const QByteArray &deviceType) :
 
     offsetSelect = new QWidget;
     QFormLayout *offsetSelectLayout = new QFormLayout(offsetSelect);
+    offsetSelectLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
     offsetSelectLayout->setMargin(0);
     offsetButton = new QSpinBox;
     offsetButton->setSuffix(" ms");
@@ -96,7 +99,7 @@ DeviceWidget::DeviceWidget(MainWindow *parent, const QByteArray &deviceType) :
 
     mainLayout->addWidget(new Line);
 
-    initPeakProgressBar(channelsGrid);
+    initPeakProgressBar(channelsList);
 
     timeout.setSingleShot(true);
     timeout.setInterval(100);
@@ -129,7 +132,7 @@ void DeviceWidget::setChannelMap(const pa_channel_map &m, bool can_decibel)
     channelMap = m;
 
     for (int i = 0; i < m.channels; i++) {
-        Channel *ch = channels[i] = new Channel(channelsGrid);
+        Channel *ch = channels[i] = new Channel(channelsList);
         ch->channel = i;
         ch->can_decibel = can_decibel;
         ch->minimalStreamWidget = this;

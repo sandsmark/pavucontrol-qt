@@ -26,7 +26,6 @@
 #include <QFrame>
 
 class QProgressBar;
-class QGridLayout;
 class QLabel;
 class QVBoxLayout;
 class QHBoxLayout;
@@ -45,7 +44,7 @@ class MinimalStreamWidget : public QWidget
     Q_OBJECT
 public:
     MinimalStreamWidget(QWidget *parent = nullptr);
-    void initPeakProgressBar(QGridLayout *channelsGrid);
+    void initPeakProgressBar(QVBoxLayout *channelsList);
 
     QProgressBar *peakProgressBar;
     double lastPeak;
@@ -62,7 +61,7 @@ public:
     void updatePeak(double v);
     void setVolumeMeterVisible(bool v);
 
-    QGridLayout *channelsGrid;
+    QVBoxLayout *channelsList;
     QLabel *iconImage;
     QLabel *boldNameLabel;
     QLabel *nameLabel;
