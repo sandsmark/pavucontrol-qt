@@ -59,6 +59,7 @@ CardWidget::CardWidget(QWidget *parent) :
 
     connect(profileList, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &CardWidget::onProfileChange);
     connect(profileCB, &QAbstractButton::toggled, this, &CardWidget::onProfileCheck);
+    connect(profileCB, &QCheckBox::toggled, profileLabel, &QLabel::setEnabled);
 }
 
 

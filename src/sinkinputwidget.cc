@@ -24,6 +24,8 @@
 #include "sinkwidget.h"
 
 #include <QMenu>
+#include <QLabel>
+#include <QToolButton>
 
 
 class SinkMenuItem : public QAction
@@ -143,7 +145,7 @@ void SinkInputWidget::onKill()
 
 void SinkInputWidget::buildMenu()
 {
-    for (const std::pair<uint32_t, SinkWidget*> &sinkWidget : mpMainWindow->sinkWidgets) {
+    for (const std::pair<const uint32_t, SinkWidget*> &sinkWidget : mpMainWindow->sinkWidgets) {
         menu->addAction(new SinkMenuItem{this, sinkWidget.second->description.constData(), sinkWidget.second->index, sinkWidget.second->index == mSinkIndex, menu});
     }
 }

@@ -45,6 +45,7 @@
 #include <QCommandLineOption>
 #include <QString>
 #include <QDebug>
+#include <QTabWidget>
 
 static pa_context *context = nullptr;
 static pa_mainloop_api *api = nullptr;

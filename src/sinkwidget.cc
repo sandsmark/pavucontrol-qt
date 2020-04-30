@@ -23,6 +23,10 @@
 #include <pulse/format.h>
 #include <pulse/ext-device-restore.h>
 
+#include <QCheckBox>
+#include <QToolButton>
+#include <QComboBox>
+
 SinkWidget::SinkWidget(MainWindow *parent) :
     DeviceWidget(parent, "sink")
 {

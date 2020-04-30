@@ -33,6 +33,11 @@
 #include <QScrollArea>
 #include <QDebug>
 #include <QFormLayout>
+#include <QLabel>
+#include <QTabWidget>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QToolButton>
 
 /* Used for profile sorting */
 struct profile_prio_compare {

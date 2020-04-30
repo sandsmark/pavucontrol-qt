@@ -22,6 +22,8 @@
 #include "mainwindow.h"
 #include "sourcewidget.h"
 #include <QMenu>
+#include <QLabel>
+#include <QToolButton>
 
 class SourceMenuItem : public QAction
 {
@@ -142,7 +144,7 @@ void SourceOutputWidget::onKill()
 
 void SourceOutputWidget::buildMenu()
 {
-    for (const std::pair<uint32_t, SourceWidget*> &sourceWidget : mpMainWindow->sourceWidgets) {
+    for (const std::pair<const uint32_t, SourceWidget*> &sourceWidget : mpMainWindow->sourceWidgets) {
         menu->addAction(new SourceMenuItem{this, sourceWidget.second->description.constData(), sourceWidget.second->index, sourceWidget.second->index == mSourceIndex, menu});
     }
 }

@@ -20,6 +20,9 @@
 
 #include "sourcewidget.h"
 
+#include <QToolButton>
+#include <QComboBox>
+
 SourceWidget::SourceWidget(MainWindow *parent) :
     DeviceWidget(parent, "source")
 {

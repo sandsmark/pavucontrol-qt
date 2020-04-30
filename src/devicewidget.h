@@ -24,13 +24,15 @@
 #include "pavucontrol.h"
 
 #include "minimalstreamwidget.h"
-#include "ui_devicewidget.h"
 #include <QTimer>
 #include <vector>
 
 class MainWindow;
 class Channel;
 class QAction;
+class QSpinBox;
+class QCheckBox;
+class QComboBox;
 
 class DeviceWidget : public MinimalStreamWidget
 {

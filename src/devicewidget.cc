@@ -30,6 +30,11 @@
 #include <QInputDialog>
 #include <QVBoxLayout>
 #include <QFormLayout>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QSpinBox>
+#include <QToolButton>
+#include <QCoreApplication>
 
 #include <pulse/ext-device-manager.h>
 
