@@ -35,8 +35,6 @@ set(pavucontrol-qt_SRCS
 set(pavucontrol-qt_UI
     cardwidget.ui
     devicewidget.ui
-    mainwindow.ui
-    streamwidget.ui
 )
 
 # Translations
