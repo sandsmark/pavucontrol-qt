@@ -30,7 +30,9 @@
 #include <QIcon>
 #include <QStyle>
 #include <QSettings>
+#include <QScrollArea>
 #include <QDebug>
+#include <QFormLayout>
 
 /* Used for profile sorting */
 struct profile_prio_compare {
@@ -69,6 +71,32 @@ struct source_port_prio_compare {
     }
 };
 
+QWidget *createTab(QWidget *contentList, QLabel *defaultLabel, QWidget *typeSelect)
+{
+    QWidget *tab;
+    QFormLayout *tabLayout;
+    // Main tab
+    tab = new QWidget;
+    tabLayout = new QFormLayout(tab);
+    tabLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+    tab->setLayout(new QVBoxLayout);
+
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setWidget(contentList);
+    tabLayout->addRow(scrollArea);
+    tabLayout->addRow(QObject::tr("Show:"), typeSelect);
+
+    scrollArea->setLayout(new QVBoxLayout);
+    scrollArea->setWidgetResizable(true);
+    contentList->layout()->addWidget(defaultLabel);
+
+    contentList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    scrollArea->layout()->addWidget(contentList);
+    scrollArea->setWidget(contentList);
+
+    return tab;
+}
+
 MainWindow::MainWindow(QWidget *parent):
     QDialog(parent),
     showSinkInputType(SINK_INPUT_CLIENT),
@@ -80,13 +108,77 @@ MainWindow::MainWindow(QWidget *parent):
     m_connected(false),
     m_config_filename(nullptr)
 {
+    setLayout(new QVBoxLayout);
 
-    setupUi(this);
+    ////////////////////
+    // Create widgets
+    m_notebook = new QTabWidget;
+
+    m_sinkInputTypeComboBox = new QComboBox;
+    m_sinkInputTypeComboBox->addItems( {
+        tr("All Streams"),
+        tr("Applications"),
+        tr("Virtual Streams"),
+    });
+    m_sourceOutputTypeComboBox = new QComboBox;
+    m_sourceOutputTypeComboBox->addItems( {
+        tr("All Streams"),
+        tr("Applications"),
+        tr("Virtual Streams"),
+    });
+    m_sinkTypeComboBox = new QComboBox;
+    m_sinkTypeComboBox->addItems( {
+        tr("All Output Devices"),
+        tr("Hardware Output Devices"),
+        tr("Virtual Output Devices"),
+    });
+    m_sourceTypeComboBox = new QComboBox;
+    m_sourceTypeComboBox->addItems( {
+        tr("All Input Devices"),
+        tr("All Except Monitors"),
+        tr("Hardware Input Devices"),
+        tr("Virtual Input Devices"),
+        tr("Monitors"),
+    });
+
+    m_showVolumeMetersCheckButton = new QCheckBox(tr("Show volume meters"));
+
+
+    m_connectingLabel = new QLabel;
+    m_noStreamsLabel = new QLabel("<i>No application is currently playing audio.</i>");
+    m_noRecsLabel = new QLabel(tr("<i>No application is currently recording audio.</i>"));
+    m_noSinksLabel = new QLabel(tr("<i>No output devices available</i>"));
+    m_noSourcesLabel = new QLabel(tr("<i>No input devices available</i>"));
+    m_noCardsLabel = new QLabel(tr("<i>No cards available for configuration</i>"));
+
+    m_sinksVBox = new QWidget;
+    m_sinksVBox->setLayout(new QVBoxLayout);
+    m_sourcesVBox = new QWidget;
+    m_sourcesVBox->setLayout(new QVBoxLayout);
+    m_streamsVBox = new QWidget;
+    m_streamsVBox->setLayout(new QVBoxLayout);
+    m_recsVBox = new QWidget;
+    m_recsVBox->setLayout(new QVBoxLayout);
+    m_cardsVBox = new QWidget;
+    m_cardsVBox->setLayout(new QVBoxLayout);
+
+    ///////////////
+    // Do layout
+    // Tabs
+    m_notebook->addTab(createTab(m_streamsVBox, m_noStreamsLabel, m_sinkInputTypeComboBox), tr("&Playback"));
+    m_notebook->addTab(createTab(m_recsVBox, m_noRecsLabel, m_sourceOutputTypeComboBox), tr("&Recording"));
+    m_notebook->addTab(createTab(m_sinksVBox, m_noSinksLabel, m_sinkTypeComboBox), tr("&Output Devices"));
+    m_notebook->addTab(createTab(m_sourcesVBox, m_noSourcesLabel, m_sourceTypeComboBox), tr("&Input Devices"));
+    m_notebook->addTab(createTab(m_cardsVBox, m_noCardsLabel, m_showVolumeMetersCheckButton), tr("&Configuration"));
+
+    layout()->addWidget(m_notebook);
+    layout()->addWidget(m_connectingLabel);
 
     m_sinkInputTypeComboBox->setCurrentIndex((int) showSinkInputType);
     m_sourceOutputTypeComboBox->setCurrentIndex((int) showSourceOutputType);
     m_sinkTypeComboBox->setCurrentIndex((int) showSinkType);
     m_sourceTypeComboBox->setCurrentIndex((int) showSourceType);
+
 
     connect(m_sinkInputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSinkInputTypeComboBoxChanged);
     connect(m_sourceOutputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceOutputTypeComboBoxChanged);

@@ -26,7 +26,8 @@
 #include <pulse/ext-device-restore.h>
 
 #include <QDialog>
-#include "ui_mainwindow.h"
+#include <QMap>
+//#include "ui_mainwindow.h"
 
 class CardWidget;
 class SinkWidget;
@@ -35,7 +36,12 @@ class SinkInputWidget;
 class SourceOutputWidget;
 class RoleWidget;
 
-class MainWindow : public QDialog, public Ui::MainWindow
+class QLabel;
+class QComboBox;
+class QCheckBox;
+class QTabWidget;
+
+class MainWindow : public QDialog
 {
     Q_OBJECT
 
@@ -63,7 +69,7 @@ public:
 
     void removeAllWidgets();
 
-    void setConnectingMessage(const char *string = NULL);
+    void setConnectingMessage(const char *string = nullptr);
 
     std::map<uint32_t, CardWidget *> cardWidgets;
     std::map<uint32_t, SinkWidget *> sinkWidgets;
@@ -102,11 +108,33 @@ public:
 
     bool canRenameDevices;
 
+    QTabWidget *m_notebook; // todo: pull in necessary code from pavucontrol.cc
+
 private:
     static void setIconByName(QLabel *label, const QByteArray &name, const QByteArray &fallback);
 
     bool m_connected;
     char *m_config_filename;
+
+    // UI elements
+    QComboBox *m_sinkInputTypeComboBox;
+    QComboBox *m_sourceOutputTypeComboBox;
+    QComboBox *m_sinkTypeComboBox;
+    QComboBox *m_sourceTypeComboBox ;
+    QCheckBox *m_showVolumeMetersCheckButton;
+
+    QLabel *m_connectingLabel;
+    QLabel *m_noStreamsLabel;
+    QLabel *m_noRecsLabel;
+    QLabel *m_noSinksLabel;
+    QLabel *m_noSourcesLabel;
+    QLabel *m_noCardsLabel;
+
+    QWidget *m_cardsVBox;
+    QWidget *m_sinksVBox;
+    QWidget *m_sourcesVBox;
+    QWidget *m_streamsVBox;
+    QWidget *m_recsVBox;
 };
 
 
