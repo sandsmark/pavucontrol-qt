@@ -54,6 +54,8 @@ CardWidget::CardWidget(QWidget *parent) :
     profileList = new QComboBox;
     profileLayout->addWidget(profileList);
 
+    profileLayout->addStretch();
+
     mainLayout->addWidget(new Line);
 
 

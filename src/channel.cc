@@ -76,9 +76,8 @@ Channel::Channel(QVBoxLayout *parent) :
 
     volumeScale->setRange(paVolume2Percent(PA_VOLUME_MUTED), paVolume2Percent(PA_VOLUME_UI_MAX));
     volumeScale->setValue(paVolume2Percent(PA_VOLUME_NORM));
-    volumeScale->setPageStep(5);
-    volumeScale->setTickInterval(10);//paVolume2Percent(PA_VOLUME_NORM));
-    volumeScale->setTickPosition(QSlider::TicksBelow);
+    volumeScale->setTickInterval(paVolume2Percent(PA_VOLUME_NORM));
+    volumeScale->setTickPosition(QSlider::TicksBothSides);
     volumeScale->setTracking(false);
     setBaseVolume(PA_VOLUME_NORM);
 

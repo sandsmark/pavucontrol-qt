@@ -81,19 +81,20 @@ QWidget *createTab(QWidget *contentList, QLabel *defaultLabel, QWidget *typeSele
     contentList->setLayout(new QVBoxLayout);
 
     QWidget *tab = new QWidget;
-    QFormLayout *tabLayout = new QFormLayout(tab);
-    tabLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+    QVBoxLayout *tabLayout = new QVBoxLayout(tab);//QFormLayout(tab);
 
     QScrollArea *scrollArea = new QScrollArea;
-    scrollArea->setWidget(contentList);
-    tabLayout->addRow(scrollArea);
-    tabLayout->addRow(QObject::tr("Show:"), typeSelect);
-
+    tabLayout->addWidget(scrollArea);
     scrollArea->setLayout(new QVBoxLayout);
     scrollArea->setWidgetResizable(true);
-    contentList->layout()->addWidget(defaultLabel);
+
+    QHBoxLayout *typeLayout = new QHBoxLayout;
+    typeLayout->addWidget(new QLabel(QObject::tr("Show:")));
+    typeLayout->addWidget(typeSelect);
+    tabLayout->addLayout(typeLayout);
 
     contentList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    contentList->layout()->addWidget(defaultLabel);
     scrollArea->layout()->addWidget(contentList);
     scrollArea->setWidget(contentList);
 
