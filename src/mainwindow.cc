@@ -73,6 +73,8 @@ struct source_port_prio_compare {
 
 QWidget *createTab(QWidget *contentList, QLabel *defaultLabel, QWidget *typeSelect)
 {
+    QVBoxLayout *contentsLayout = new QVBoxLayout(contentList);
+    contentsLayout->addStretch();
     QWidget *tab;
     QFormLayout *tabLayout;
     // Main tab
@@ -151,15 +153,10 @@ MainWindow::MainWindow(QWidget *parent):
     m_noCardsLabel = new QLabel(tr("<i>No cards available for configuration</i>"));
 
     m_sinksVBox = new QWidget;
-    m_sinksVBox->setLayout(new QVBoxLayout);
     m_sourcesVBox = new QWidget;
-    m_sourcesVBox->setLayout(new QVBoxLayout);
     m_streamsVBox = new QWidget;
-    m_streamsVBox->setLayout(new QVBoxLayout);
     m_recsVBox = new QWidget;
-    m_recsVBox->setLayout(new QVBoxLayout);
     m_cardsVBox = new QWidget;
-    m_cardsVBox->setLayout(new QVBoxLayout);
 
     ///////////////
     // Do layout

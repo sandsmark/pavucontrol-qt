@@ -30,7 +30,6 @@
 class MainWindow;
 class Channel;
 class QAction;
-class QGridLayout;
 class QLabel;
 class QToolButton;
 
@@ -63,14 +62,8 @@ public:
     virtual void executeVolumeUpdate();
     virtual void onKill();
 
-    QLabel *iconImage;
-    QLabel *boldNameLabel;
-    QLabel *nameLabel;
     QLabel *directionLabel;
-    QGridLayout *channelsGrid;
     QToolButton *deviceButton;
-    QToolButton *muteToggleButton;
-    QToolButton *lockToggleButton;
 
 
 protected:

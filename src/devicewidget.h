@@ -32,7 +32,7 @@ class MainWindow;
 class Channel;
 class QAction;
 
-class DeviceWidget : public MinimalStreamWidget, public Ui::DeviceWidget
+class DeviceWidget : public MinimalStreamWidget
 {
     Q_OBJECT
 public:
@@ -73,6 +73,23 @@ public:
 
     std::vector< std::pair<QByteArray, QByteArray>> ports;
     QByteArray activePort;
+    QSpinBox *offsetButton;
+    QToolButton *defaultToggleButton;
+
+    QWidget *portSelect;
+    QWidget *offsetSelect;
+    QWidget *encodingSelect;
+
+    QCheckBox *advancedOptions;
+    QComboBox *portList;
+
+    // TODO, this is just 1-1 from the .ui, can do smarter
+    QCheckBox *encodingFormatPCM;
+    QCheckBox *encodingFormatAC3;
+    QCheckBox *encodingFormatEAC3;
+    QCheckBox *encodingFormatDTS;
+    QCheckBox *encodingFormatMPEG;
+    QCheckBox *encodingFormatAAC;
 
     void prepareMenu();
 
@@ -87,7 +104,7 @@ protected:
 
 private:
     QString mDeviceType;
-
+    QWidget *advancedWidget;
 };
 
 #endif

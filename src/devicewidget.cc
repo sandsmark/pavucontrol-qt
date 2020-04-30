@@ -28,6 +28,8 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QVBoxLayout>
+#include <QFormLayout>
 
 #include <pulse/ext-device-manager.h>
 
@@ -39,9 +41,61 @@ DeviceWidget::DeviceWidget(MainWindow *parent, const QByteArray &deviceType) :
     rename{new QAction{tr("Rename device..."), this}},
        mDeviceType(QString::fromUtf8(deviceType))
 {
+    defaultToggleButton = new QToolButton;
+    defaultToggleButton->setToolTip(tr("Set as fallback"));
+    defaultToggleButton->setIcon(QIcon::fromTheme("applications-multimedia"));
+    defaultToggleButton->setCheckable(true);
+    topLayout->addWidget(defaultToggleButton);
 
-    setupUi(this);
+    portSelect = new QWidget;
+    QFormLayout *portSelectLayout = new QFormLayout(portSelect);
+    portList = new QComboBox;
+    portSelectLayout->addRow(tr("<b>Port:</b>"), portList);
+    mainLayout->addWidget(portSelect);
+
+    advancedOptions = new QCheckBox;
+    advancedOptions->setText(tr("Show advanced options"));
+    mainLayout->addWidget(advancedOptions);
+
+    advancedWidget = new QWidget;
+    mainLayout->addWidget(advancedWidget);
     advancedWidget->hide();
+    QVBoxLayout *advancedLayout = new QVBoxLayout(advancedWidget);
+    advancedLayout->setMargin(0);
+
+    encodingSelect = new QWidget;
+    QGridLayout *encodingLayout = new QGridLayout(encodingSelect);
+    encodingLayout->setMargin(0);
+    advancedLayout->addWidget(encodingSelect);
+
+    encodingFormatPCM = new QCheckBox;
+    encodingFormatAC3 = new QCheckBox;
+    encodingFormatEAC3 = new QCheckBox;
+    encodingFormatDTS = new QCheckBox;
+    encodingFormatMPEG = new QCheckBox;
+    encodingFormatAAC = new QCheckBox;
+
+    encodingLayout->addWidget(encodingFormatPCM, 0, 0);
+    encodingLayout->addWidget(encodingFormatAC3, 0, 1);
+    encodingLayout->addWidget(encodingFormatEAC3, 0, 2);
+    encodingLayout->addWidget(encodingFormatDTS, 1, 0);
+    encodingLayout->addWidget(encodingFormatMPEG, 1, 1);
+    encodingLayout->addWidget(encodingFormatAAC, 1, 2);
+
+    offsetSelect = new QWidget;
+    QFormLayout *offsetSelectLayout = new QFormLayout(offsetSelect);
+    offsetSelectLayout->setMargin(0);
+    offsetButton = new QSpinBox;
+    offsetButton->setSuffix(" ms");
+    offsetButton->setMaximum(10000);
+    offsetSelectLayout->addRow(tr("<b>Latency offset:</b>"), offsetButton);
+
+    advancedLayout->addWidget(offsetSelect);
+
+    mainLayout->addWidget(advancedWidget);
+
+    mainLayout->addWidget(new Line);
+
     initPeakProgressBar(channelsGrid);
 
     timeout.setSingleShot(true);
@@ -51,6 +105,7 @@ DeviceWidget::DeviceWidget(MainWindow *parent, const QByteArray &deviceType) :
     connect(muteToggleButton, &QToolButton::toggled, this, &DeviceWidget::onMuteToggleButton);
     connect(lockToggleButton, &QToolButton::toggled, this, &DeviceWidget::onLockToggleButton);
     connect(defaultToggleButton, &QToolButton::toggled, this, &DeviceWidget::onDefaultToggleButton);
+    connect(advancedOptions, &QCheckBox::toggled, advancedWidget, &QWidget::setVisible);
 
     connect(rename, &QAction::triggered, this, &DeviceWidget::renamePopup);
     addAction(rename);

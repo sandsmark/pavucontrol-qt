@@ -22,19 +22,54 @@
 
 #include <QGridLayout>
 #include <QProgressBar>
+#include <QLabel>
 #include <QDebug>
+#include <QVBoxLayout>
+#include <QToolButton>
 
 /*** MinimalStreamWidget ***/
 MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
     QWidget(parent),
-    peakProgressBar(new QProgressBar(this)),
     lastPeak(0),
     peak(nullptr),
     updating(false),
     volumeMeterEnabled(false),
     volumeMeterVisible(true)
 {
+    mainLayout = new QVBoxLayout;
+    setLayout(mainLayout);
 
+    topLayout = new QHBoxLayout;
+    mainLayout->addLayout(topLayout);
+
+    nameLabel = new QLabel(tr("Device Title"));
+    topLayout->addWidget(nameLabel);
+
+    iconImage = new QLabel;
+    topLayout->addWidget(iconImage);
+
+    boldNameLabel = new QLabel;
+    topLayout->addWidget(boldNameLabel);
+
+    topLayout->addStretch();
+
+    muteToggleButton = new QToolButton;
+    topLayout->addWidget(muteToggleButton);
+    muteToggleButton->setToolTip(tr("Mute audio"));
+    muteToggleButton->setCheckable(true);
+    muteToggleButton->setIcon(QIcon::fromTheme("audio-volume-muted"));
+
+    lockToggleButton = new QToolButton;
+    lockToggleButton->setToolTip(tr("Lock channels together"));
+    lockToggleButton->setIcon(QIcon::fromTheme("changes-prevent-symbolic"));
+    lockToggleButton->setCheckable(true);
+    lockToggleButton->setChecked(true);
+    topLayout->addWidget(lockToggleButton);
+
+    channelsGrid = new QGridLayout;
+    mainLayout->addLayout(channelsGrid);
+
+    peakProgressBar = new QProgressBar;
     peakProgressBar->setTextVisible(false);
     peakProgressBar->setMaximumHeight(4 /* FIXME: hardcoded */);
     peakProgressBar->hide();

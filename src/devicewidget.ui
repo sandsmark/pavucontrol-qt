@@ -85,7 +85,7 @@
         <string>Set as fallback</string>
        </property>
        <property name="icon">
-        <iconset theme="applications-multimedia"/>
+        <iconset theme=""/>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -123,7 +123,7 @@
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>Show advanced options</string>
+      <string></string>
      </property>
     </widget>
    </item>

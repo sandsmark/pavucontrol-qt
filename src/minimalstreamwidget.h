@@ -23,9 +23,22 @@
 
 #include "pavucontrol.h"
 #include <QWidget>
+#include <QFrame>
 
 class QProgressBar;
 class QGridLayout;
+class QLabel;
+class QVBoxLayout;
+class QHBoxLayout;
+class QToolButton;
+
+struct Line : public QFrame
+{
+    Line() {
+        setFrameShape(QFrame::HLine);
+        setFrameShadow(QFrame::Sunken);
+    }
+};
 
 class MinimalStreamWidget : public QWidget
 {
@@ -48,6 +61,15 @@ public:
     void enableVolumeMeter();
     void updatePeak(double v);
     void setVolumeMeterVisible(bool v);
+
+    QGridLayout *channelsGrid;
+    QLabel *iconImage;
+    QLabel *boldNameLabel;
+    QLabel *nameLabel;
+    QVBoxLayout *mainLayout;
+    QHBoxLayout *topLayout;
+    QToolButton *muteToggleButton;
+    QToolButton *lockToggleButton;
 
 private :
     bool volumeMeterVisible;
