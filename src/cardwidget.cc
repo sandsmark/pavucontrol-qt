@@ -40,6 +40,7 @@ CardWidget::CardWidget(QWidget *parent) :
 
     topLayout->addWidget(iconImage);
     topLayout->addWidget(nameLabel);
+    topLayout->addStretch();
 
     QHBoxLayout *profileLayout = new QHBoxLayout;
     mainLayout->addLayout(profileLayout);

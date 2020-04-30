@@ -78,13 +78,10 @@ struct source_port_prio_compare {
 
 QWidget *createTab(QWidget *contentList, QLabel *defaultLabel, QWidget *typeSelect)
 {
-    QVBoxLayout *contentsLayout = new QVBoxLayout(contentList);
-    contentsLayout->addStretch();
-    QWidget *tab;
-    QFormLayout *tabLayout;
-    // Main tab
-    tab = new QWidget;
-    tabLayout = new QFormLayout(tab);
+    contentList->setLayout(new QVBoxLayout);
+
+    QWidget *tab = new QWidget;
+    QFormLayout *tabLayout = new QFormLayout(tab);
     tabLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 
     QScrollArea *scrollArea = new QScrollArea;
