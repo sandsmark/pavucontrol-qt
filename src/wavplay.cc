@@ -144,8 +144,6 @@ WavPlay::~WavPlay()
 
 void WavPlay::playSound(const QString &device)
 {
-    qDebug() << "Requesting play on" << device;
-
     if (!m_uploadComplete) {
         if (!m_uploadStream) {
             uploadSample();

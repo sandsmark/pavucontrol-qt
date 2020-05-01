@@ -34,6 +34,12 @@ In LXQt sessions the binary is placed in sub-menu "Sound & Video" of the panel's
 The usage itself should be self-explanatory.
 
 
+## Credits
+
+The data/bop.wav is from the sound-theme-freedesktop package.
+
+https://freedesktop.org/wiki/Specifications/sound-theme-spec
+
 ### Translation (Weblate)
 
 <a href="https://weblate.lxqt.org/projects/lxqt/pavucontrol-qt/">
