@@ -37,6 +37,8 @@ void SourceWidget::executeVolumeUpdate()
         return;
     }
 
+    emit requestBop(QString()); // no device
+
     pa_operation_unref(o);
 }
 

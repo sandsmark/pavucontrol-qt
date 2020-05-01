@@ -70,7 +70,7 @@ public Q_SLOTS:
 public:
     QTimer timeout;
 
-    virtual void executeVolumeUpdate();
+    virtual void executeVolumeUpdate() = 0;
     virtual void setBaseVolume(pa_volume_t v);
 
     std::vector< std::pair<QByteArray, QByteArray>> ports;

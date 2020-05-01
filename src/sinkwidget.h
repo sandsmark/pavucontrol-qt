@@ -48,14 +48,14 @@ public:
 
     encodingList encodings[PAVU_NUM_ENCODINGS];
 
-    virtual void onMuteToggleButton();
-    virtual void executeVolumeUpdate();
-    virtual void onDefaultToggleButton();
+    void onMuteToggleButton() override;
+    void executeVolumeUpdate() override;
+    void onDefaultToggleButton() override;
     void setDigital(bool);
 
 protected Q_SLOTS:
-    virtual void onPortChange();
-    virtual void onEncodingsChange();
+    void onPortChange() override;
+    void onEncodingsChange();
 };
 
 #endif

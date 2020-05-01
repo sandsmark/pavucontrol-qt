@@ -53,7 +53,6 @@ public:
     virtual void onMuteToggleButton();
     virtual void onLockToggleButton();
     virtual void onDeviceChangePopup();
-    // virtual bool onContextTriggerEvent(GdkEventButton*);
 
     QTimer timeout;
 

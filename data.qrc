@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>data/bop.wav</file>
+    </qresource>
+</RCC>

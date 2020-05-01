@@ -15,6 +15,7 @@ set(pavucontrol-qt_HDRS
     sourceoutputwidget.h
     sourcewidget.h
     streamwidget.h
+    wavplay.h
 )
 
 set(pavucontrol-qt_SRCS
@@ -30,6 +31,7 @@ set(pavucontrol-qt_SRCS
     sourceoutputwidget.cc
     sourcewidget.cc
     streamwidget.cc
+    wavplay.cc
 )
 
 # Translations
@@ -49,6 +51,7 @@ lxqt_translate_desktop(DESKTOP_FILES
 )
 
 add_executable(pavucontrol-qt
+    ../data.qrc
     ${pavucontrol-qt_SRCS}
     ${pavucontrol-qt_QM_FILES}
     ${pavucontrol-qt_QM_LOADER}

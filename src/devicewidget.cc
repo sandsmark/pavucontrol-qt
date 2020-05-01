@@ -249,10 +249,6 @@ bool DeviceWidget::timeoutEvent()
     return false;
 }
 
-void DeviceWidget::executeVolumeUpdate()
-{
-}
-
 void DeviceWidget::setLatencyOffset(int64_t offset)
 {
     offsetButtonEnabled = false;

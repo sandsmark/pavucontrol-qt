@@ -79,6 +79,7 @@ void SinkWidget::executeVolumeUpdate()
         show_error(tr("pa_context_set_sink_volume_by_index() failed").toUtf8().constData());
         return;
     }
+    emit requestBop(name);
 
     pa_operation_unref(o);
 }

@@ -40,6 +40,7 @@ class QLabel;
 class QComboBox;
 class QCheckBox;
 class QTabWidget;
+class WavPlay;
 
 class MainWindow : public QDialog
 {
@@ -135,6 +136,8 @@ private:
     QWidget *m_sourcesVBox;
     QWidget *m_streamsVBox;
     QWidget *m_recsVBox;
+
+    WavPlay *m_popPlayer;
 };
 
 

@@ -27,6 +27,7 @@
 #include "sinkinputwidget.h"
 #include "sourceoutputwidget.h"
 #include "rolewidget.h"
+#include "wavplay.h"
 #include <QIcon>
 #include <QStyle>
 #include <QSettings>
@@ -112,6 +113,8 @@ MainWindow::MainWindow(QWidget *parent):
     m_connected(false),
     m_config_filename(nullptr)
 {
+    m_popPlayer = new WavPlay(":/data/bop.wav", this);
+
     setLayout(new QVBoxLayout);
 
     ////////////////////
@@ -444,6 +447,7 @@ bool MainWindow::updateSink(const pa_sink_info &info)
         w = sinkWidgets[info.index];
     } else {
         sinkWidgets[info.index] = w = new SinkWidget(this);
+        connect(w, &SinkWidget::requestBop, m_popPlayer, &WavPlay::playSound);
         w->setChannelMap(info.channel_map, !!(info.flags & PA_SINK_DECIBEL_VOLUME));
         m_sinksVBox->layout()->addWidget(w);
         w->index = info.index;
@@ -624,6 +628,8 @@ void MainWindow::updateSource(const pa_source_info &info)
         w = sourceWidgets[info.index];
     } else {
         sourceWidgets[info.index] = w = new SourceWidget(this);
+        connect(w, &SourceWidget::requestBop, m_popPlayer, &WavPlay::playSound);
+
         w->setChannelMap(info.channel_map, !!(info.flags & PA_SOURCE_DECIBEL_VOLUME));
         m_sourcesVBox->layout()->addWidget(w);
 
@@ -746,7 +752,7 @@ void MainWindow::updateSinkInput(const pa_sink_input_info &info)
 
     if ((t = pa_proplist_gets(info.proplist, "module-stream-restore.id"))) {
         if (strcmp(t, "sink-input-by-media-role:event") == 0) {
-            qDebug("%s", tr("Ignoring sink-input due to it being designated as an event and thus handled by the Event widget").toUtf8().constData());
+//            qDebug("%s", tr("Ignoring sink-input due to it being designated as an event and thus handled by the Event widget").toUtf8().constData());
             return;
         }
     }
@@ -761,6 +767,7 @@ void MainWindow::updateSinkInput(const pa_sink_input_info &info)
         }
     } else {
         sinkInputWidgets[info.index] = w = new SinkInputWidget(this);
+        connect(w, &SinkInputWidget::requestBop, m_popPlayer, &WavPlay::playSound);
         w->setChannelMap(info.channel_map, true);
         m_streamsVBox->layout()->addWidget(w);
 
@@ -861,7 +868,7 @@ void MainWindow::updateClient(const pa_client_info &info)
 {
     clientNames[info.index] = QString::fromUtf8(info.name).toHtmlEscaped();
 
-    for (const std::pair<uint32_t, SinkInputWidget*> &sinkInputWidget : sinkInputWidgets) {
+    for (const std::pair<const uint32_t, SinkInputWidget*> &sinkInputWidget : sinkInputWidgets) {
         SinkInputWidget *w = sinkInputWidget.second;
 
         if (!w) {
@@ -879,7 +886,7 @@ void MainWindow::updateServer(const pa_server_info &info)
     defaultSourceName = info.default_source_name ? info.default_source_name : "";
     defaultSinkName = info.default_sink_name ? info.default_sink_name : "";
 
-    for (const std::pair<uint32_t, SinkWidget*> &sinkWidget : sinkWidgets) {
+    for (const std::pair<const uint32_t, SinkWidget*> &sinkWidget : sinkWidgets) {
         SinkWidget *w = sinkWidget.second;
 
         if (!w) {
@@ -892,7 +899,7 @@ void MainWindow::updateServer(const pa_server_info &info)
         w->updating = false;
     }
 
-    for (const std::pair<uint32_t, SourceWidget*> &sourceWidget : sourceWidgets) {
+    for (const std::pair<const uint32_t, SourceWidget*> &sourceWidget : sourceWidgets) {
         SourceWidget *w = sourceWidget.second;
 
         if (!w) {
@@ -916,6 +923,7 @@ bool MainWindow::createEventRoleWidget()
     };
 
     eventRoleWidget = new RoleWidget(this);
+    connect(eventRoleWidget, &RoleWidget::requestBop, m_popPlayer, &WavPlay::playSound);
     m_streamsVBox->layout()->addWidget(eventRoleWidget);
     eventRoleWidget->role = "sink-input-by-media-role:event";
     eventRoleWidget->setChannelMap(cm, true);
