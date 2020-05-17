@@ -37,11 +37,11 @@ StreamWidget::StreamWidget(MainWindow *parent) :
     terminate{new QAction{tr("Terminate"), this}}
 {
 
-    directionLabel = new QLabel;
-    topLayout->addWidget(directionLabel);
-
     deviceButton = new QToolButton;
-    topLayout->addWidget(deviceButton);
+    topLayout->insertWidget(4, deviceButton);
+
+    directionLabel = new QLabel;
+    topLayout->insertWidget(4, directionLabel);
 
     mainLayout->addWidget(new Line);
 

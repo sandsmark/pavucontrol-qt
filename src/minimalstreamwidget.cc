@@ -42,14 +42,14 @@ MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
     topLayout = new QHBoxLayout;
     mainLayout->addLayout(topLayout);
 
-    nameLabel = new QLabel(tr("Device Title"));
-    topLayout->addWidget(nameLabel);
-
     iconImage = new QLabel;
     topLayout->addWidget(iconImage);
 
     boldNameLabel = new QLabel;
     topLayout->addWidget(boldNameLabel);
+
+    nameLabel = new QLabel(tr("Device Title"));
+    topLayout->addWidget(nameLabel);
 
     topLayout->addStretch();
 
