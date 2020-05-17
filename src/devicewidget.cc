@@ -141,9 +141,7 @@ void DeviceWidget::setChannelMap(const pa_channel_map &m, bool can_decibel)
         ch->channel = i;
         ch->can_decibel = can_decibel;
         ch->minimalStreamWidget = this;
-        char text[64];
-        snprintf(text, sizeof(text), "<b>%s</b>", pa_channel_position_to_pretty_string(m.map[i]));
-        ch->channelLabel->setText(QString::fromUtf8(text));
+        ch->channelLabel->setText(QStringLiteral("<b>%1</b>").arg(QString::fromUtf8(pa_channel_position_to_pretty_string(m.map[i]))));
     }
 
     channels[m.channels - 1]->last = true;

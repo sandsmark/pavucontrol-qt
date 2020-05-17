@@ -56,11 +56,9 @@ static int reconnect_timeout = 1;
 
 void show_error(const char *txt)
 {
-    char buf[256];
-
-    snprintf(buf, sizeof(buf), "%s: %s", txt, pa_strerror(pa_context_errno(context)));
-
-    QMessageBox::critical(nullptr, QObject::tr("Error"), QString::fromUtf8(buf));
+    QMessageBox::critical(nullptr, QObject::tr("Error"),
+            QStringLiteral("%1: %2").arg(txt, pa_strerror(pa_context_errno(context)))
+            );
     qApp->quit();
 }
 
