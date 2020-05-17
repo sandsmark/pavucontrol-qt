@@ -5,5 +5,7 @@ The original authors of the gtk+ version of pavucontrol are:
 * Copyright 2009-2011 Colin Guthrie <mzcnihpbageby (at) 0pointer (dot) de>
 
 The Qt port pavucontrol-qt is derived from the gtk+ version.
-It's done by LXQt developers:
+Initial port by the lxqt developers:
 * Copyright 2016 Hong Jen-Yee (PCMan) <pcman.tw@gmail.com>
+
+And I'm Martin and did some stuff in 2019/2020.
