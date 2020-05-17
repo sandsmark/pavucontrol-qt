@@ -699,6 +699,7 @@ int main(int argc, char *argv[])
 {
 
     signal(SIGPIPE, SIG_IGN);
+    qputenv("QT_NO_GLIB", "1");
 
     QApplication app(argc, argv);
 
