@@ -6,14 +6,12 @@ pavucontrol-qt is the Qt port of volume control [pavucontrol](https://freedeskto
 
 As such it can be used to adjust all controls provided by PulseAudio as well as some additional settings.   
 
-The software belongs to the LXQt project but its usage isn't limited to this desktop environment.   
-
 ## Installation
 
 ### Compiling source code
 
 Runtime dependencies are qtbase and PulseAudio client library libpulse.   
-Additional build dependencies are CMake and [liblxqt](https://github.com/lxqt/liblxqt) as well as optionally Git to pull latest VCS checkouts. The localization files were outsourced to repository [lxqt-l10n](https://github.com/lxqt/lxqt-l10n) so the corresponding dependencies are needed, too. Please refer to this repository's `README.md` for further information.
+Additional build dependencies are CMake and optionally Git to pull latest VCS checkouts.
 
 Code configuration is handled by CMake. CMake variable `CMAKE_INSTALL_PREFIX` has to be set to `/usr` on most operating systems.   
 
@@ -29,8 +27,6 @@ On FreeBSD the binary package is available as [pavucontrol-qt](https://www.fresh
 
 ## Usage
 
-In LXQt sessions the binary is placed in sub-menu "Sound & Video" of the panel's main menu.   
-
 The usage itself should be self-explanatory.
 
 
@@ -39,9 +35,3 @@ The usage itself should be self-explanatory.
 The data/bop.wav is from the sound-theme-freedesktop package.
 
 https://freedesktop.org/wiki/Specifications/sound-theme-spec
-
-### Translation (Weblate)
-
-<a href="https://weblate.lxqt.org/projects/lxqt/pavucontrol-qt/">
-<img src="https://weblate.lxqt.org/widgets/lxqt/-/pavucontrol-qt/multi-auto.svg" alt="Translation status" />
-</a>

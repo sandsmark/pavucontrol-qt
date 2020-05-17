@@ -34,22 +34,6 @@ set(pavucontrol-qt_SRCS
     wavplay.cc
 )
 
-# Translations
-lxqt_translate_ts(pavucontrol-qt_QM_FILES
-    UPDATE_TRANSLATIONS
-        ${UPDATE_TRANSLATIONS}
-    SOURCES
-        ${pavucontrol-qt_HDRS}
-        ${pavucontrol-qt_SRCS}
-    INSTALL_DIR
-        "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/translations"
-)
-
-lxqt_translate_desktop(DESKTOP_FILES
-    SOURCES
-    pavucontrol-qt.desktop.in
-)
-
 add_executable(pavucontrol-qt
     ../data.qrc
     ${pavucontrol-qt_SRCS}
