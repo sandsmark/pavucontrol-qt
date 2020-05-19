@@ -1263,27 +1263,34 @@ void MainWindow::removeClient(uint32_t index)
 void MainWindow::removeAllWidgets()
 {
     for (const std::pair<uint32_t, SinkInputWidget*> &sinkInputWidget : sinkInputWidgets) {
-        removeSinkInput(sinkInputWidget.first);
+        sinkInputWidget.second->deleteLater();
     }
+    sinkInputWidgets.clear();
 
     for (const std::pair<uint32_t, SourceOutputWidget*> &sourceOutputWidget : sourceOutputWidgets) {
-        removeSourceOutput(sourceOutputWidget.first);
+        sourceOutputWidget.second->deleteLater();
     }
+    sourceOutputWidgets.clear();
 
     for (const std::pair<uint32_t, SinkWidget*> &sinkWidget : sinkWidgets) {
-        removeSink(sinkWidget.first);
+        sinkWidget.second->deleteLater();
     }
+    sinkWidgets.clear();
 
     for (const std::pair<uint32_t, SourceWidget*> &sourceWidget : sourceWidgets) {
-        removeSource(sourceWidget.first);
+        sourceWidget.second->deleteLater();
     }
+    sourceWidgets.clear();
 
     for (const std::pair<uint32_t, CardWidget*> &cardWidget : cardWidgets) {
-        removeCard(cardWidget.first);
+        cardWidget.second->deleteLater();
     }
+    cardWidgets.clear();
 
     clientNames.clear();
     deleteEventRoleWidget();
+
+    updateDeviceVisibility();
 }
 
 void MainWindow::setConnectingMessage(const char *string)
