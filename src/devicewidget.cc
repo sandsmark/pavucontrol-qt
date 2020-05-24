@@ -214,17 +214,13 @@ void DeviceWidget::onDefaultToggleButton()
 void DeviceWidget::onOffsetChange()
 {
     pa_operation *o;
-    int64_t offset;
-    std::ostringstream card_stream;
-    QByteArray card_name;
 
     if (!offsetButtonEnabled) {
         return;
     }
 
-    offset = offsetButton->value() * 1000.0;
-    card_stream << card_index;
-    card_name = QByteArray::fromStdString(card_stream.str());
+    int64_t offset = offsetButton->value() * 1000.0;
+    QByteArray card_name = QByteArray::number(card_index);
 
     if (!(o = pa_context_set_port_latency_offset(get_context(),
               card_name.constData(), activePort.constData(), offset, nullptr, nullptr))) {
