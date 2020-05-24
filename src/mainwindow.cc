@@ -103,7 +103,7 @@ QWidget *createTab(QWidget *contentList, QLabel *defaultLabel, QWidget *typeSele
 }
 
 MainWindow::MainWindow(QWidget *parent):
-    QDialog(parent),
+    QWidget(parent),
     showSinkInputType(SINK_INPUT_CLIENT),
     showSinkType(SINK_ALL),
     showSourceOutputType(SOURCE_OUTPUT_CLIENT),

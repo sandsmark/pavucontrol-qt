@@ -25,7 +25,7 @@
 #include <pulse/ext-stream-restore.h>
 #include <pulse/ext-device-restore.h>
 
-#include <QDialog>
+#include <QWidget>
 #include <QMap>
 //#include "ui_mainwindow.h"
 
@@ -42,7 +42,7 @@ class QCheckBox;
 class QTabWidget;
 class WavPlay;
 
-class MainWindow : public QDialog
+class MainWindow : public QWidget
 {
     Q_OBJECT
 
