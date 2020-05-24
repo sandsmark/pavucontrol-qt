@@ -35,6 +35,8 @@
 #include <QSpinBox>
 #include <QToolButton>
 #include <QCoreApplication>
+#include <QGroupBox>
+#include <QDebug>
 
 #include <pulse/ext-device-manager.h>
 
@@ -57,6 +59,7 @@ DeviceWidget::DeviceWidget(MainWindow *parent, const QByteArray &deviceType) :
     portSelectLayout->setMargin(0);
     portSelectLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
     portList = new QComboBox;
+    portList->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     portSelectLayout->addRow(tr("<b>Port:</b>"), portList);
     mainLayout->addWidget(portSelect);
 
@@ -101,8 +104,6 @@ DeviceWidget::DeviceWidget(MainWindow *parent, const QByteArray &deviceType) :
     advancedLayout->addWidget(offsetSelect);
 
     mainLayout->addWidget(advancedWidget);
-
-    mainLayout->addWidget(new Line);
 
     initPeakProgressBar(channelsList);
 
@@ -298,6 +299,16 @@ void DeviceWidget::prepareMenu()
         advancedOptions->setEnabled(false);
         offsetSelect->hide();
     }
+    portList->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+
+    //int width = cb->minimumSizeHint().width();
+
+    //portList->view().setMinimumWidth(width)
+
+    //qDebug() << portList->minimumWidth() << portList->width() << portList->sizeHint().width();
+    //qDebug() << portList->minimumWidth() << portList->width() << portList->sizeHint().width();
+    ////portList->adjustGeometry();
+    //qDebug() << portList->minimumWidth() << portList->width() << portList->sizeHint().width();
 }
 
 void DeviceWidget::renamePopup()

@@ -29,10 +29,11 @@
 
 /*** CardWidget ***/
 CardWidget::CardWidget(QWidget *parent) :
-    QWidget(parent)
+    QGroupBox(parent)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     QHBoxLayout *topLayout = new QHBoxLayout;
+    topLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addLayout(topLayout);
 
     iconImage = new QLabel;
@@ -55,10 +56,6 @@ CardWidget::CardWidget(QWidget *parent) :
     profileLayout->addWidget(profileList);
 
     profileLayout->addStretch();
-
-    mainLayout->addWidget(new Line);
-
-
 
     connect(profileList, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &CardWidget::onProfileChange);
     connect(profileCB, &QAbstractButton::toggled, this, &CardWidget::onProfileCheck);

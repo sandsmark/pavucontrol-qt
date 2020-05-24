@@ -25,6 +25,9 @@
 #include <QLabel>
 #include <QSlider>
 #include <QFontMetrics>
+#include <QPainter>
+#include <QDebug>
+#include <QStyleOptionSlider>
 
 constexpr int SLIDER_SNAP = 2;
 static inline int paVolume2Percent(pa_volume_t vol)
@@ -41,6 +44,24 @@ static inline pa_volume_t percent2PaVolume(int percent)
     return PA_VOLUME_MUTED + qRound(static_cast<double>(percent) / 100 * PA_VOLUME_NORM);
 }
 
+NotchedSlider::NotchedSlider(Qt::Orientation orientation, QWidget *parent) :
+    QSlider(orientation, parent)
+{}
+
+void NotchedSlider::paintEvent(QPaintEvent *e)
+{
+    QStyleOptionSlider options;
+    initStyleOption(&options);
+    QPainter p(this);
+    const float lineWidth = 8;
+    p.setPen(QPen(palette().dark(), lineWidth));
+    const int tickX = (float(PA_VOLUME_NORM) / (PA_VOLUME_UI_MAX - PA_VOLUME_MUTED)) * options.rect.width() - style()->pixelMetric(QStyle::PM_SliderTickmarkOffset) + options.rect.x();
+    const int tickHeight = style()->pixelMetric(QStyle::PM_SliderThickness);
+    p.drawLine(tickX, 0, tickX, height());
+
+    QSlider::paintEvent(e);
+}
+
 /*** ChannelWidget ***/
 
 Channel::Channel(QVBoxLayout *parent) :
@@ -50,7 +71,7 @@ Channel::Channel(QVBoxLayout *parent) :
     last(false)
 {
     channelLabel = new QLabel(nullptr);
-    volumeScale = new QSlider(Qt::Horizontal, nullptr);
+    volumeScale = new NotchedSlider(Qt::Horizontal, nullptr);
     volumeLabel = new QLabel(nullptr);
 
 //    const int row = parent->rowCount();
@@ -76,7 +97,7 @@ Channel::Channel(QVBoxLayout *parent) :
 
     volumeScale->setRange(paVolume2Percent(PA_VOLUME_MUTED), paVolume2Percent(PA_VOLUME_UI_MAX));
     volumeScale->setValue(paVolume2Percent(PA_VOLUME_NORM));
-    volumeScale->setTickInterval(paVolume2Percent(PA_VOLUME_NORM));
+    volumeScale->setTickInterval(paVolume2Percent(PA_VOLUME_NORM) / 10);
     volumeScale->setTickPosition(QSlider::TicksBothSides);
     volumeScale->setTracking(false);
     setBaseVolume(PA_VOLUME_NORM);

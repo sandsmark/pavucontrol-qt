@@ -22,7 +22,7 @@
 #define minimalstreamwidget_h
 
 #include "pavucontrol.h"
-#include <QWidget>
+#include <QGroupBox>
 #include <QFrame>
 
 class QProgressBar;
@@ -31,15 +31,7 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QToolButton;
 
-struct Line : public QFrame
-{
-    Line() {
-        setFrameShape(QFrame::HLine);
-        setFrameShadow(QFrame::Sunken);
-    }
-};
-
-class MinimalStreamWidget : public QWidget
+class MinimalStreamWidget : public QFrame//QGroupBox
 {
     Q_OBJECT
 public:

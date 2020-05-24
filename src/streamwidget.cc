@@ -43,8 +43,6 @@ StreamWidget::StreamWidget(MainWindow *parent) :
     directionLabel = new QLabel;
     topLayout->insertWidget(4, directionLabel);
 
-    mainLayout->addWidget(new Line);
-
     initPeakProgressBar(channelsList);
 
     timeout.setSingleShot(true);

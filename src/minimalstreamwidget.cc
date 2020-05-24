@@ -29,13 +29,15 @@
 
 /*** MinimalStreamWidget ***/
 MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
-    QWidget(parent),
+    QFrame(parent),
     lastPeak(0),
     peak(nullptr),
     updating(false),
     volumeMeterEnabled(false),
     volumeMeterVisible(true)
 {
+    setFrameShadow(QFrame::Raised);
+    setFrameShape(QFrame::StyledPanel);
     mainLayout = new QVBoxLayout;
     setLayout(mainLayout);
 

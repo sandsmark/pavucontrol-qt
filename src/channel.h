@@ -22,12 +22,24 @@
 #define channel_h
 
 #include <QObject>
+#include <QSlider>
 #include "pavucontrol.h"
 
 class QVBoxLayout;
 class QLabel;
 class QSlider;
 class MinimalStreamWidget;
+
+class NotchedSlider : public QSlider
+{
+    Q_OBJECT
+
+public:
+    NotchedSlider(Qt::Orientation orientation, QWidget *parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent *e) override;
+};
 
 class Channel : public QObject
 {
@@ -52,7 +64,7 @@ public:
     bool last;
 
     QLabel *channelLabel;
-    QSlider *volumeScale;
+    NotchedSlider *volumeScale;
     QLabel *volumeLabel;
 
     //virtual void set_sensitive(bool enabled);

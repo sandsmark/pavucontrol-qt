@@ -22,7 +22,7 @@
 #define cardwidget_h
 
 #include "pavucontrol.h"
-#include <QWidget>
+#include <QGroupBox>
 
 class QLabel;
 class QCheckBox;
@@ -40,7 +40,7 @@ public:
     std::vector<QByteArray> profiles;
 };
 
-class CardWidget : public QWidget
+class CardWidget : public QGroupBox
 {
     Q_OBJECT
 public:
