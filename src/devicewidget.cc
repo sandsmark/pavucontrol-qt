@@ -75,12 +75,12 @@ DeviceWidget::DeviceWidget(MainWindow *parent, const QByteArray &deviceType) :
     encodingLayout->setMargin(0);
     advancedLayout->addWidget(encodingSelect);
 
-    encodingFormatPCM = new QCheckBox;
-    encodingFormatAC3 = new QCheckBox;
-    encodingFormatEAC3 = new QCheckBox;
-    encodingFormatDTS = new QCheckBox;
-    encodingFormatMPEG = new QCheckBox;
-    encodingFormatAAC = new QCheckBox;
+    encodingFormatPCM = new QCheckBox(tr("PCM"));
+    encodingFormatAC3 = new QCheckBox(tr("AC3"));
+    encodingFormatEAC3 = new QCheckBox(tr("EAC3"));
+    encodingFormatDTS = new QCheckBox(tr("DTS"));
+    encodingFormatMPEG = new QCheckBox(tr("MPEG"));
+    encodingFormatAAC = new QCheckBox(tr("AAC"));
 
     encodingLayout->addWidget(encodingFormatPCM, 0, 0);
     encodingLayout->addWidget(encodingFormatAC3, 0, 1);
@@ -127,9 +127,9 @@ DeviceWidget::DeviceWidget(MainWindow *parent, const QByteArray &deviceType) :
     }
 
 
-    // FIXME:
-//    offsetAdjustment = Gtk::Adjustment::create(0.0, -2000.0, 2000.0, 10.0, 50.0, 0.0);
-//    offsetButton->configure(offsetAdjustment, 0, 2);
+    offsetButton->setMaximum(2000);
+    offsetButton->setMinimum(-2000);
+    offsetButton->setSingleStep(10);
 }
 
 void DeviceWidget::setChannelMap(const pa_channel_map &m, bool can_decibel)
