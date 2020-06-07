@@ -88,8 +88,8 @@ void SinkInputWidget::setSinkIndex(uint32_t idx)
 {
     mSinkIndex = idx;
 
-    if (mpMainWindow->sinkWidgets.count(idx)) {
-        SinkWidget *w = mpMainWindow->sinkWidgets[idx];
+    if (mpMainWindow->m_sinkWidgets.count(idx)) {
+        SinkWidget *w = mpMainWindow->m_sinkWidgets[idx];
         deviceButton->setText(QString::fromUtf8(w->description));
     } else {
         deviceButton->setText(tr("Unknown output"));
@@ -145,7 +145,7 @@ void SinkInputWidget::onKill()
 
 void SinkInputWidget::buildMenu()
 {
-    for (const std::pair<const uint32_t, SinkWidget*> &sinkWidget : mpMainWindow->sinkWidgets) {
+    for (const std::pair<const uint32_t, SinkWidget*> &sinkWidget : mpMainWindow->m_sinkWidgets) {
         menu->addAction(new SinkMenuItem{this, sinkWidget.second->description.constData(), sinkWidget.second->index, sinkWidget.second->index == mSinkIndex, menu});
     }
 }

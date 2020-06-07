@@ -317,7 +317,7 @@ void DeviceWidget::renamePopup()
         return;
     }
 
-    if (!mpMainWindow->canRenameDevices) {
+    if (!mpMainWindow->m_canRenameDevices) {
         QMessageBox::warning(this, tr("Sorry, but device renaming is not supported.")
                              , tr("You need to load module-device-manager in the PulseAudio server in order to rename devices"));
         return;

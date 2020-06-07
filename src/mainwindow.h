@@ -72,17 +72,17 @@ public:
 
     void setConnectingMessage(const char *string = nullptr);
 
-    std::map<uint32_t, CardWidget *> cardWidgets;
-    std::map<uint32_t, SinkWidget *> sinkWidgets;
-    std::map<uint32_t, SourceWidget *> sourceWidgets;
-    std::map<uint32_t, SinkInputWidget *> sinkInputWidgets;
-    std::map<uint32_t, SourceOutputWidget *> sourceOutputWidgets;
+    std::map<uint32_t, CardWidget *> m_cardWidgets;
+    std::map<uint32_t, SinkWidget *> m_sinkWidgets;
+    std::map<uint32_t, SourceWidget *> m_sourceWidgets;
+    std::map<uint32_t, SinkInputWidget *> m_sinkInputWidgets;
+    std::map<uint32_t, SourceOutputWidget *> m_sourceOutputWidgets;
 
-    QMap<int, QString> clientNames;
-    SinkInputType showSinkInputType;
-    SinkType showSinkType;
-    SourceOutputType showSourceOutputType;
-    SourceType showSourceType;
+    QMap<int, QString> m_clientNames;
+    SinkInputType m_showSinkInputType;
+    SinkType m_showSinkType;
+    SourceOutputType m_showSourceOutputType;
+    SourceType m_showSourceType;
 
 protected Q_SLOTS:
     virtual void onSinkInputTypeComboBoxChanged(int index);
@@ -96,22 +96,22 @@ public:
     void updateDeviceVisibility();
     void reallyUpdateDeviceVisibility();
     pa_stream *createMonitorStreamForSource(uint32_t source_idx, uint32_t stream_idx, bool suspend);
-    void createMonitorStreamForSinkInput(SinkInputWidget *w, uint32_t sink_idx);
+    void createMonitorStreamForSinkInput(SinkInputWidget *sinkInputWidget, uint32_t sink_idx);
 
-    static void setIconFromProplist(QLabel *icon, pa_proplist *l, const char *name);
-
-    RoleWidget *eventRoleWidget;
+    RoleWidget *m_eventRoleWidget = nullptr;
 
     bool createEventRoleWidget();
     void deleteEventRoleWidget();
 
-    QByteArray defaultSinkName, defaultSourceName;
+    QByteArray m_defaultSinkName, m_defaultSourceName;
 
-    bool canRenameDevices;
+    bool m_canRenameDevices = false;
 
     QTabWidget *m_notebook; // todo: pull in necessary code from pavucontrol.cc
 
 private:
+    int iconSize();
+
     static void setIconByName(QLabel *label, const QByteArray &name, const QByteArray &fallback);
 
     bool m_connected;

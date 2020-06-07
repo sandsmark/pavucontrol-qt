@@ -182,11 +182,11 @@ void source_output_cb(pa_context *, const pa_source_output_info *i, int eol, voi
              * let's open one that isn't empty */
             if (default_tab != -1) {
                 if (default_tab < 1 || default_tab > w->m_notebook->count()) {
-                    if (!w->sinkInputWidgets.empty()) {
+                    if (!w->m_sinkInputWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(0);
-                    } else if (!w->sourceOutputWidgets.empty()) {
+                    } else if (!w->m_sourceOutputWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(1);
-                    } else if (!w->sourceWidgets.empty() && w->sinkWidgets.empty()) {
+                    } else if (!w->m_sourceWidgets.empty() && w->m_sinkWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(3);
                     } else {
                         w->m_notebook->setCurrentIndex(2);
@@ -333,7 +333,7 @@ void ext_device_manager_read_cb(
         return;
     }
 
-    w->canRenameDevices = true;
+    w->m_canRenameDevices = true;
 
     if (eol > 0) {
         dec_outstanding(w);
