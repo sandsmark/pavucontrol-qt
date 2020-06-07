@@ -46,7 +46,7 @@ class CardWidget : public QGroupBox
 public:
     CardWidget(QWidget *parent = nullptr);
 
-    QByteArray name;
+    QString name;
     uint32_t index;
     bool updating;
 

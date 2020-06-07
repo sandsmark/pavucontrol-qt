@@ -28,6 +28,8 @@
 #include "sourceoutputwidget.h"
 #include "rolewidget.h"
 #include "wavplay.h"
+#include "utils.h"
+
 #include <QIcon>
 #include <QStyle>
 #include <QSettings>
@@ -307,7 +309,6 @@ void MainWindow::updateCard(const pa_card_info &info)
 {
     CardWidget *w;
     bool is_new = false;
-    const char *description, *icon;
     std::set<pa_card_profile_info2 *, profile_prio_compare> profile_priorities;
 
     if (cardWidgets.count(info.index)) {
@@ -321,11 +322,16 @@ void MainWindow::updateCard(const pa_card_info &info)
 
     w->updating = true;
 
-    description = pa_proplist_gets(info.proplist, PA_PROP_DEVICE_DESCRIPTION);
-    w->name = description ? description : info.name;
-    w->nameLabel->setText(QString::fromUtf8(w->name));
+    const QString name = QString::fromUtf8(info.name);
+    const QString description = utils::readProperty(info, PA_PROP_DEVICE_DESCRIPTION);
+    if (!description.isEmpty()) {
+        w->name = description;
+    } else {
+        w->name = name;
+    }
+    w->nameLabel->setText(w->name);
 
-    icon = pa_proplist_gets(info.proplist, PA_PROP_DEVICE_ICON_NAME);
+    const char *icon = pa_proplist_gets(info.proplist, PA_PROP_DEVICE_ICON_NAME);
     setIconByName(w->iconImage, icon, "audio-card");
 
     w->hasSinks = w->hasSources = false;
@@ -746,17 +752,13 @@ void MainWindow::setIconFromProplist(QLabel *icon, pa_proplist *l, const char *f
 
 void MainWindow::updateSinkInput(const pa_sink_input_info &info)
 {
-    const char *t;
-    SinkInputWidget *w;
-    bool is_new = false;
-
-    if ((t = pa_proplist_gets(info.proplist, "module-stream-restore.id"))) {
-        if (strcmp(t, "sink-input-by-media-role:event") == 0) {
+    if (utils::readProperty(info, "module-stream-restore.id") == "sink-input-by-media-role:event") {
 //            qDebug("%s", tr("Ignoring sink-input due to it being designated as an event and thus handled by the Event widget").toUtf8().constData());
-            return;
-        }
+        return;
     }
 
+    bool is_new = false;
+    SinkInputWidget *w;
     if (sinkInputWidgets.count(info.index)) {
         w = sinkInputWidgets[info.index];
 
@@ -815,12 +817,14 @@ void MainWindow::updateSourceOutput(const pa_source_output_info &info)
     const char *app;
     bool is_new = false;
 
-    if ((app = pa_proplist_gets(info.proplist, PA_PROP_APPLICATION_ID))) {
-        if (strcmp(app, "org.PulseAudio.pavucontrol") == 0
-                || strcmp(app, "org.gnome.VolumeControl") == 0
-                || strcmp(app, "org.kde.kmixd") == 0) {
-            return;
-        }
+    static const QSet<QString> mixers({
+            "org.PulseAudio.pavucontrol",
+            "org.gnome.VolumeControl",
+            "org.kde.kmixd"
+        });
+
+    if (mixers.contains(utils::readProperty(info, PA_PROP_APPLICATION_ID))) {
+        return;
     }
 
     if (sourceOutputWidgets.count(info.index)) {
@@ -846,7 +850,7 @@ void MainWindow::updateSourceOutput(const pa_source_output_info &info)
         w->boldNameLabel->setText(QStringLiteral("<b>%1</b>").arg(clientNames[info.client]));
         w->nameLabel->setText(QString::asprintf(": %s", info.name).toHtmlEscaped());
     } else {
-        w->boldNameLabel->setText(QLatin1String(""));
+        w->boldNameLabel->clear();
         w->nameLabel->setText(QString::fromUtf8(info.name));
     }
 
