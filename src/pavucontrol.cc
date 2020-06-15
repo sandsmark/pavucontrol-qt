@@ -472,6 +472,27 @@ void subscribe_cb(pa_context *c, pa_subscription_event_type_t t, uint32_t index,
     }
 }
 
+static void deviceManagerLoadedCb(pa_context *context, uint32_t idx, void *userdata)
+{
+    pa_operation *operation = pa_ext_device_manager_read(context, ext_device_manager_read_cb, userdata);
+
+    if (!operation) {
+        qDebug(QObject::tr("Failed to initialize device manager extension: %s").toUtf8().constData(), pa_strerror(pa_context_errno(context)));
+        return;
+    }
+
+    pa_operation_unref(operation);
+    n_outstanding++;
+
+    pa_ext_device_manager_set_subscribe_cb(context, ext_device_manager_subscribe_cb, userdata);
+
+    operation = pa_ext_device_manager_subscribe(context, 1, nullptr, nullptr);
+    if (operation) {
+        pa_operation_unref(operation);
+    }
+
+}
+
 /* Forward Declaration */
 void connect_to_pulse(MainWindow *w);
 
@@ -601,18 +622,11 @@ void context_state_callback(pa_context *c, void *userdata)
             qDebug(QObject::tr("Failed to initialize device restore extension: %s").toUtf8().constData(), pa_strerror(pa_context_errno(context)));
         }
 
-        if ((o = pa_ext_device_manager_read(c, ext_device_manager_read_cb, w))) {
-            pa_operation_unref(o);
-            n_outstanding++;
-
-            pa_ext_device_manager_set_subscribe_cb(c, ext_device_manager_subscribe_cb, w);
-
-            if ((o = pa_ext_device_manager_subscribe(c, 1, nullptr, nullptr))) {
-                pa_operation_unref(o);
-            }
-
+        pa_operation* operation = pa_context_load_module(c, "module-device-manager", "", deviceManagerLoadedCb, w);
+        if (operation) {
+            pa_operation_unref(operation);
         } else {
-            qDebug(QObject::tr("Failed to initialize device manager extension: %s").toUtf8().constData(), pa_strerror(pa_context_errno(context)));
+            qDebug(QObject::tr("Failed to load device manager extension: %s").toUtf8().constData(), pa_strerror(pa_context_errno(context)));
         }
 
 
