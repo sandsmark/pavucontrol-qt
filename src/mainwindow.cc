@@ -295,10 +295,10 @@ void MainWindow::updateCard(const pa_card_info &info)
     cardWidget->hasSinks = cardWidget->hasSources = false;
 
     QVector<pa_card_profile_info2 *> profiles;
-    for (pa_card_profile_info2 **p_profile = info.profiles2; *p_profile != nullptr; ++p_profile) {
-        cardWidget->hasSinks = cardWidget->hasSinks || ((*p_profile)->n_sinks > 0);
-        cardWidget->hasSources = cardWidget->hasSources || ((*p_profile)->n_sources > 0);
-        profiles.append(*p_profile);
+    for (uint32_t i=0; i<info.n_profiles; ++i) {
+        cardWidget->hasSinks = cardWidget->hasSinks || (info.profiles2[i]->n_sinks > 0);
+        cardWidget->hasSources = cardWidget->hasSources || (info.profiles2[i]->n_sources > 0);
+        profiles.append(info.profiles2[i]);
     }
 
     cardWidget->ports.clear();
@@ -313,8 +313,8 @@ void MainWindow::updateCard(const pa_card_info &info)
         p.direction = info.ports[i]->direction;
         p.latency_offset = info.ports[i]->latency_offset;
 
-        for (pa_card_profile_info2 **p_profile = info.ports[i]->profiles2; *p_profile != nullptr; ++p_profile) {
-            p.profiles.push_back((*p_profile)->name);
+        for (uint32_t j = 0; j < info.ports[i]->n_profiles; j++) {
+            p.profiles.push_back(info.ports[i]->profiles2[j]->name);
         }
 
         cardWidget->ports[p.name] = p;
