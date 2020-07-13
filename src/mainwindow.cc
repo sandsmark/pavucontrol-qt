@@ -25,7 +25,7 @@
 #include "outputwidget.h"
 #include "inputdevicewidget.h"
 #include "playbackwidget.h"
-#include "sourceoutputwidget.h"
+#include "recordingwidget.h"
 #include "rolewidget.h"
 #include "wavplay.h"
 #include "utils.h"

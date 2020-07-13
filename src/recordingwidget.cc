@@ -18,7 +18,7 @@
   along with pavucontrol. If not, see <https://www.gnu.org/licenses/>.
 ***/
 
-#include "sourceoutputwidget.h"
+#include "recordingwidget.h"
 #include "mainwindow.h"
 #include "inputdevicewidget.h"
 #include <QMenu>
@@ -156,4 +156,4 @@ void RecordingWidget::onDeviceChangePopup()
     menu->popup(QCursor::pos());
 }
 
-#include "sourceoutputwidget.moc"
+#include "recordingwidget.moc"

@@ -18,8 +18,7 @@
   along with pavucontrol. If not, see <https://www.gnu.org/licenses/>.
 ***/
 
-#ifndef sourceoutputwidget_h
-#define sourceoutputwidget_h
+#pragma once
 
 #include "pavucontrol.h"
 
@@ -53,5 +52,3 @@ private:
 
     QMenu *menu;
 };
-
-#endif

@@ -32,7 +32,7 @@
 #include "outputwidget.h"
 #include "inputdevicewidget.h"
 #include "playbackwidget.h"
-#include "sourceoutputwidget.h"
+#include "recordingwidget.h"
 #include "rolewidget.h"
 #include "mainwindow.h"
 #include "qtpamainloop.h"
