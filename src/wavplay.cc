@@ -103,6 +103,7 @@ WavPlay::WavPlay(const QString &filename, QObject *parent) :
     m_data = file.readAll(); // yolo
     if (size_t(m_data.size()) < sizeof(WavHeader)) {
         qWarning() << "Invalid wav header";
+        return;
     }
 
     WavHeader *header = reinterpret_cast<WavHeader*>(m_data.data());
