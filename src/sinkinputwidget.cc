@@ -33,7 +33,7 @@ class SinkMenuItem : public QAction
     Q_OBJECT
 
 public:
-    SinkMenuItem(SinkInputWidget *w
+    SinkMenuItem(PlaybackWidget *w
             , const char *label
             , uint32_t i
             , bool active
@@ -47,7 +47,7 @@ public:
         connect(this, &QAction::toggled, [this] { onToggle(); });
     }
 
-    SinkInputWidget *widget;
+    PlaybackWidget *widget;
     uint32_t index;
 
 public slots:
@@ -74,7 +74,7 @@ public slots:
     }
 };
 
-SinkInputWidget::SinkInputWidget(MainWindow *parent) :
+PlaybackWidget::PlaybackWidget(MainWindow *parent) :
     StreamWidget(parent),
     menu{new QMenu{this}}
 {
@@ -84,7 +84,7 @@ SinkInputWidget::SinkInputWidget(MainWindow *parent) :
     terminate->setText(tr("Terminate Playback"));
 }
 
-void SinkInputWidget::setSinkIndex(uint32_t idx)
+void PlaybackWidget::setPlaybackIndex(uint32_t idx)
 {
     mSinkIndex = idx;
 
@@ -96,12 +96,12 @@ void SinkInputWidget::setSinkIndex(uint32_t idx)
     }
 }
 
-uint32_t SinkInputWidget::sinkIndex()
+uint32_t PlaybackWidget::playbackIndex()
 {
     return mSinkIndex;
 }
 
-void SinkInputWidget::executeVolumeUpdate()
+void PlaybackWidget::executeVolumeUpdate()
 {
     pa_operation *o;
 
@@ -113,7 +113,7 @@ void SinkInputWidget::executeVolumeUpdate()
     pa_operation_unref(o);
 }
 
-void SinkInputWidget::onMuteToggleButton()
+void PlaybackWidget::onMuteToggleButton()
 {
     StreamWidget::onMuteToggleButton();
 
@@ -131,7 +131,7 @@ void SinkInputWidget::onMuteToggleButton()
     pa_operation_unref(o);
 }
 
-void SinkInputWidget::onKill()
+void PlaybackWidget::onKill()
 {
     pa_operation *o;
 
@@ -143,14 +143,14 @@ void SinkInputWidget::onKill()
     pa_operation_unref(o);
 }
 
-void SinkInputWidget::buildMenu()
+void PlaybackWidget::buildMenu()
 {
     for (const std::pair<const uint32_t, SinkWidget*> &sinkWidget : mpMainWindow->m_sinkWidgets) {
         menu->addAction(new SinkMenuItem{this, sinkWidget.second->description.constData(), sinkWidget.second->index, sinkWidget.second->index == mSinkIndex, menu});
     }
 }
 
-void SinkInputWidget::onDeviceChangePopup()
+void PlaybackWidget::onDeviceChangePopup()
 {
     menu->clear();
     buildMenu();

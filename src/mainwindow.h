@@ -32,7 +32,7 @@
 class CardWidget;
 class SinkWidget;
 class SourceWidget;
-class SinkInputWidget;
+class PlaybackWidget;
 class SourceOutputWidget;
 class RoleWidget;
 
@@ -53,7 +53,7 @@ public:
     void updateCard(const pa_card_info &info);
     bool updateSink(const pa_sink_info &info);
     void updateSource(const pa_source_info &info);
-    void updateSinkInput(const pa_sink_input_info &info);
+    void updatePlaybackWidget(const pa_sink_input_info &info);
     void updateSourceOutput(const pa_source_output_info &info);
     void updateClient(const pa_client_info &info);
     void updateServer(const pa_server_info &info);
@@ -64,7 +64,7 @@ public:
     void removeCard(uint32_t index);
     void removeSink(uint32_t index);
     void removeSource(uint32_t index);
-    void removeSinkInput(uint32_t index);
+    void removePlaybackWidget(uint32_t index);
     void removeSourceOutput(uint32_t index);
     void removeClient(uint32_t index);
 
@@ -75,17 +75,17 @@ public:
     std::map<uint32_t, CardWidget *> m_cardWidgets;
     std::map<uint32_t, SinkWidget *> m_sinkWidgets;
     std::map<uint32_t, SourceWidget *> m_sourceWidgets;
-    std::map<uint32_t, SinkInputWidget *> m_sinkInputWidgets;
+    std::map<uint32_t, PlaybackWidget *> m_playbackWidgets;
     std::map<uint32_t, SourceOutputWidget *> m_sourceOutputWidgets;
 
     QMap<int, QString> m_clientNames;
-    SinkInputType m_showSinkInputType;
+    PlaybackType m_showPlaybackType;
     SinkType m_showSinkType;
     SourceOutputType m_showSourceOutputType;
     SourceType m_showSourceType;
 
 protected Q_SLOTS:
-    virtual void onSinkInputTypeComboBoxChanged(int index);
+    virtual void onPlaybackTypeComboBoxChanged(int index);
     virtual void onSourceOutputTypeComboBoxChanged(int index);
     virtual void onSinkTypeComboBoxChanged(int index);
     virtual void onSourceTypeComboBoxChanged(int index);
@@ -96,7 +96,7 @@ public:
     void updateDeviceVisibility();
     void reallyUpdateDeviceVisibility();
     pa_stream *createMonitorStreamForSource(uint32_t source_idx, uint32_t stream_idx, bool suspend);
-    void createMonitorStreamForSinkInput(SinkInputWidget *sinkInputWidget, uint32_t sink_idx);
+    void createMonitorStreamForPlayback(PlaybackWidget *playbackWidget, uint32_t sink_idx);
 
     RoleWidget *m_eventRoleWidget = nullptr;
 
@@ -118,7 +118,7 @@ private:
     char *m_config_filename;
 
     // UI elements
-    QComboBox *m_sinkInputTypeComboBox;
+    QComboBox *m_playbackTypeComboBox;
     QComboBox *m_sourceOutputTypeComboBox;
     QComboBox *m_sinkTypeComboBox;
     QComboBox *m_sourceTypeComboBox ;

@@ -159,7 +159,7 @@ void sink_input_cb(pa_context *, const pa_sink_input_info *i, int eol, void *use
         return;
     }
 
-    w->updateSinkInput(*i);
+    w->updatePlaybackWidget(*i);
 }
 
 void source_output_cb(pa_context *, const pa_source_output_info *i, int eol, void *userdata)
@@ -182,7 +182,7 @@ void source_output_cb(pa_context *, const pa_source_output_info *i, int eol, voi
              * let's open one that isn't empty */
             if (default_tab != -1) {
                 if (default_tab < 1 || default_tab > w->m_notebook->count()) {
-                    if (!w->m_sinkInputWidgets.empty()) {
+                    if (!w->m_playbackWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(0);
                     } else if (!w->m_sourceOutputWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(1);
@@ -395,7 +395,7 @@ void subscribe_cb(pa_context *c, pa_subscription_event_type_t t, uint32_t index,
 
     case PA_SUBSCRIPTION_EVENT_SINK_INPUT:
         if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
-            w->removeSinkInput(index);
+            w->removePlaybackWidget(index);
         } else {
             pa_operation *o;
 

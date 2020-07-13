@@ -29,18 +29,18 @@
 class MainWindow;
 class QMenu;
 
-class SinkInputWidget : public StreamWidget
+class PlaybackWidget : public StreamWidget
 {
     Q_OBJECT
 
 public:
-    SinkInputWidget(MainWindow *parent);
+    PlaybackWidget(MainWindow *parent);
 
-    SinkInputType type;
+    PlaybackType type;
 
     uint32_t index, clientIndex;
-    void setSinkIndex(uint32_t idx);
-    uint32_t sinkIndex();
+    void setPlaybackIndex(uint32_t idx);
+    uint32_t playbackIndex();
     virtual void executeVolumeUpdate();
     virtual void onMuteToggleButton();
     virtual void onDeviceChangePopup();

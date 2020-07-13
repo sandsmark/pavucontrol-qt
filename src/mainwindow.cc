@@ -70,7 +70,7 @@ QWidget *createTab(QWidget *contentList, QLabel *defaultLabel, QWidget *typeSele
 
 MainWindow::MainWindow(QWidget *parent):
     QWidget(parent),
-    m_showSinkInputType(SINK_INPUT_CLIENT),
+    m_showPlaybackType(SINK_INPUT_CLIENT),
     m_showSinkType(SINK_ALL),
     m_showSourceOutputType(SOURCE_OUTPUT_CLIENT),
     m_showSourceType(SOURCE_NO_MONITOR),
@@ -87,8 +87,8 @@ MainWindow::MainWindow(QWidget *parent):
     // Create widgets
     m_notebook = new QTabWidget;
 
-    m_sinkInputTypeComboBox = new QComboBox;
-    m_sinkInputTypeComboBox->addItems( {
+    m_playbackTypeComboBox = new QComboBox;
+    m_playbackTypeComboBox->addItems( {
         tr("All Streams"),
         tr("Applications"),
         tr("Virtual Streams"),
@@ -133,7 +133,7 @@ MainWindow::MainWindow(QWidget *parent):
     ///////////////
     // Do layout
     // Tabs
-    m_notebook->addTab(createTab(m_streamsVBox, m_noStreamsLabel, m_sinkInputTypeComboBox), tr("&Playback"));
+    m_notebook->addTab(createTab(m_streamsVBox, m_noStreamsLabel, m_playbackTypeComboBox), tr("&Playback"));
     m_notebook->addTab(createTab(m_recsVBox, m_noRecsLabel, m_sourceOutputTypeComboBox), tr("&Recording"));
     m_notebook->addTab(createTab(m_sinksVBox, m_noSinksLabel, m_sinkTypeComboBox), tr("&Output Devices"));
     m_notebook->addTab(createTab(m_sourcesVBox, m_noSourcesLabel, m_sourceTypeComboBox), tr("&Input Devices"));
@@ -142,13 +142,13 @@ MainWindow::MainWindow(QWidget *parent):
     layout()->addWidget(m_notebook);
     layout()->addWidget(m_connectingLabel);
 
-    m_sinkInputTypeComboBox->setCurrentIndex((int) m_showSinkInputType);
+    m_playbackTypeComboBox->setCurrentIndex((int) m_showPlaybackType);
     m_sourceOutputTypeComboBox->setCurrentIndex((int) m_showSourceOutputType);
     m_sinkTypeComboBox->setCurrentIndex((int) m_showSinkType);
     m_sourceTypeComboBox->setCurrentIndex((int) m_showSourceType);
 
 
-    connect(m_sinkInputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSinkInputTypeComboBoxChanged);
+    connect(m_playbackTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onPlaybackTypeComboBoxChanged);
     connect(m_sourceOutputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceOutputTypeComboBoxChanged);
     connect(m_sinkTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSinkTypeComboBoxChanged);
     connect(m_sourceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceTypeComboBoxChanged);
@@ -169,10 +169,10 @@ MainWindow::MainWindow(QWidget *parent):
         resize(last_size);
     }
 
-    const QVariant sinkInputTypeSelection = config.value(QStringLiteral("window/sinkInputType"));
+    const QVariant playbackTypeSelection = config.value(QStringLiteral("window/sinkInputType"));
 
-    if (sinkInputTypeSelection.isValid()) {
-        m_sinkInputTypeComboBox->setCurrentIndex(sinkInputTypeSelection.toInt());
+    if (playbackTypeSelection.isValid()) {
+        m_playbackTypeComboBox->setCurrentIndex(playbackTypeSelection.toInt());
     }
 
     const QVariant sourceOutputTypeSelection = config.value(QStringLiteral("window/sourceOutputType"));
@@ -202,7 +202,7 @@ MainWindow::~MainWindow()
 {
     QSettings config;
     config.setValue(QStringLiteral("window/size"), size());
-    config.setValue(QStringLiteral("window/sinkInputType"), m_sinkInputTypeComboBox->currentIndex());
+    config.setValue(QStringLiteral("window/sinkInputType"), m_playbackTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/sourceOutputType"), m_sourceOutputTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/sinkType"), m_sinkTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/sourceType"), m_sourceTypeComboBox->currentIndex());
@@ -561,19 +561,19 @@ pa_stream *MainWindow::createMonitorStreamForSource(uint32_t source_idx, uint32_
     return stream;
 }
 
-void MainWindow::createMonitorStreamForSinkInput(SinkInputWidget *sinkInputWidget, uint32_t sink_idx)
+void MainWindow::createMonitorStreamForPlayback(PlaybackWidget *playbackWidget, uint32_t sink_idx)
 {
     if (!m_sinkWidgets.count(sink_idx)) {
         qWarning() << "Unknown sink index" << sink_idx;
         return;
     }
 
-    if (sinkInputWidget->peak) {
-        pa_stream_disconnect(sinkInputWidget->peak);
-        sinkInputWidget->peak = nullptr;
+    if (playbackWidget->peak) {
+        pa_stream_disconnect(playbackWidget->peak);
+        playbackWidget->peak = nullptr;
     }
 
-    sinkInputWidget->peak = createMonitorStreamForSource(m_sinkWidgets[sink_idx]->monitor_index, sinkInputWidget->index);
+    playbackWidget->peak = createMonitorStreamForSource(m_sinkWidgets[sink_idx]->monitor_index, playbackWidget->index);
 }
 
 void MainWindow::updateSource(const pa_source_info &info)
@@ -651,7 +651,7 @@ void MainWindow::updateSource(const pa_source_info &info)
     }
 }
 
-void MainWindow::updateSinkInput(const pa_sink_input_info &info)
+void MainWindow::updatePlaybackWidget(const pa_sink_input_info &info)
 {
     if (utils::readProperty(info, "module-stream-restore.id") == "sink-input-by-media-role:event") {
 //            qDebug("%s", tr("Ignoring sink-input due to it being designated as an event and thus handled by the Event widget").toUtf8().constData());
@@ -659,53 +659,53 @@ void MainWindow::updateSinkInput(const pa_sink_input_info &info)
     }
 
     bool is_new = false;
-    SinkInputWidget *sinkInputWidget;
-    if (m_sinkInputWidgets.count(info.index)) {
-        sinkInputWidget = m_sinkInputWidgets[info.index];
+    PlaybackWidget *playbackWidget;
+    if (m_playbackWidgets.count(info.index)) {
+        playbackWidget = m_playbackWidgets[info.index];
 
         if (pa_context_get_server_protocol_version(get_context()) >= 13) {
-            if (sinkInputWidget->sinkIndex() != info.sink) {
-                createMonitorStreamForSinkInput(sinkInputWidget, info.sink);
+            if (playbackWidget->playbackIndex() != info.sink) {
+                createMonitorStreamForPlayback(playbackWidget, info.sink);
             }
         }
     } else {
-        m_sinkInputWidgets[info.index] = sinkInputWidget = new SinkInputWidget(this);
-        connect(sinkInputWidget, &SinkInputWidget::requestBop, m_popPlayer, &WavPlay::playSound);
-        sinkInputWidget->setChannelMap(info.channel_map, true);
-        m_streamsVBox->layout()->addWidget(sinkInputWidget);
+        m_playbackWidgets[info.index] = playbackWidget = new PlaybackWidget(this);
+        connect(playbackWidget, &PlaybackWidget::requestBop, m_popPlayer, &WavPlay::playSound);
+        playbackWidget->setChannelMap(info.channel_map, true);
+        m_streamsVBox->layout()->addWidget(playbackWidget);
 
-        sinkInputWidget->index = info.index;
-        sinkInputWidget->clientIndex = info.client;
+        playbackWidget->index = info.index;
+        playbackWidget->clientIndex = info.client;
         is_new = true;
-        sinkInputWidget->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
+        playbackWidget->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
 
         if (pa_context_get_server_protocol_version(get_context()) >= 13) {
-            createMonitorStreamForSinkInput(sinkInputWidget, info.sink);
+            createMonitorStreamForPlayback(playbackWidget, info.sink);
         }
     }
 
-    sinkInputWidget->updating = true;
+    playbackWidget->updating = true;
 
-    sinkInputWidget->type = info.client != PA_INVALID_INDEX ? SINK_INPUT_CLIENT : SINK_INPUT_VIRTUAL;
+    playbackWidget->type = info.client != PA_INVALID_INDEX ? SINK_INPUT_CLIENT : SINK_INPUT_VIRTUAL;
 
-    sinkInputWidget->setSinkIndex(info.sink);
+    playbackWidget->setPlaybackIndex(info.sink);
 
     if (m_clientNames.contains(info.client)) {
-        sinkInputWidget->boldNameLabel->setText(QStringLiteral("<b>%1</b>").arg(m_clientNames[info.client]));
-        sinkInputWidget->nameLabel->setText(QString::asprintf(": %s", info.name).toHtmlEscaped());
+        playbackWidget->boldNameLabel->setText(QStringLiteral("<b>%1</b>").arg(m_clientNames[info.client]));
+        playbackWidget->nameLabel->setText(QString::asprintf(": %s", info.name).toHtmlEscaped());
     } else {
-        sinkInputWidget->boldNameLabel->setText(QLatin1String(""));
-        sinkInputWidget->nameLabel->setText(QString::fromUtf8(info.name));
+        playbackWidget->boldNameLabel->clear();
+        playbackWidget->nameLabel->setText(QString::fromUtf8(info.name));
     }
 
-    sinkInputWidget->nameLabel->setToolTip(QString::fromUtf8(info.name));
+    playbackWidget->nameLabel->setToolTip(QString::fromUtf8(info.name));
 
-    sinkInputWidget->iconImage->setPixmap(utils::findIcon(info, "audio-card").pixmap(iconSize()));
+    playbackWidget->iconImage->setPixmap(utils::findIcon(info, "audio-card").pixmap(iconSize()));
 
-    sinkInputWidget->setVolume(info.volume);
-    sinkInputWidget->muteToggleButton->setChecked(info.mute);
+    playbackWidget->setVolume(info.volume);
+    playbackWidget->muteToggleButton->setChecked(info.mute);
 
-    sinkInputWidget->updating = false;
+    playbackWidget->updating = false;
 
     if (is_new) {
         updateDeviceVisibility();
@@ -746,8 +746,8 @@ void MainWindow::updateSourceOutput(const pa_source_output_info &info)
     sourceOutputWidget->setSourceIndex(info.source);
 
     if (m_clientNames.contains(info.client)) {
-        sourceOutputWidget->boldNameLabel->setText(QStringLiteral("<b>%1</b>").arg(m_clientNames[info.client]));
-        sourceOutputWidget->nameLabel->setText(QString::asprintf(": %s", info.name).toHtmlEscaped());
+        sourceOutputWidget->boldNameLabel->setText(QStringLiteral("<b>%1</b> source output client").arg(m_clientNames[info.client]));
+        sourceOutputWidget->nameLabel->setText(QString::asprintf(": %s", info.name).toHtmlEscaped() + "[source output]");
     } else {
         sourceOutputWidget->boldNameLabel->clear();
         sourceOutputWidget->nameLabel->setText(QString::fromUtf8(info.name));
@@ -771,8 +771,8 @@ void MainWindow::updateClient(const pa_client_info &info)
 {
     m_clientNames[info.index] = QString::fromUtf8(info.name).toHtmlEscaped();
 
-    for (const std::pair<const uint32_t, SinkInputWidget*> &sinkInputWidget : m_sinkInputWidgets) {
-        SinkInputWidget *w = sinkInputWidget.second;
+    for (const std::pair<const uint32_t, PlaybackWidget*> &playbackWidget : m_playbackWidgets) {
+        PlaybackWidget *w = playbackWidget.second;
 
         if (!w) {
             continue;
@@ -833,7 +833,7 @@ bool MainWindow::createEventRoleWidget()
     m_eventRoleWidget->role = "sink-input-by-media-role:event";
     m_eventRoleWidget->setChannelMap(cm, true);
 
-    m_eventRoleWidget->boldNameLabel->setText(QLatin1String(""));
+    m_eventRoleWidget->boldNameLabel->clear();
     m_eventRoleWidget->nameLabel->setText(tr("System Sounds"));
 
     m_eventRoleWidget->iconImage->setPixmap(QIcon::fromTheme("multimedia-volume-control").pixmap(iconSize()));
@@ -928,11 +928,11 @@ void MainWindow::updateDeviceInfo(const pa_ext_device_restore_info &info)
 void MainWindow::updateVolumeMeter(uint32_t source_index, uint32_t sink_input_idx, double v)
 {
     if (sink_input_idx != PA_INVALID_INDEX) {
-        SinkInputWidget *sinkInputWidget;
+        PlaybackWidget *playbackWidget;
 
-        if (m_sinkInputWidgets.count(sink_input_idx)) {
-            sinkInputWidget = m_sinkInputWidgets[sink_input_idx];
-            sinkInputWidget->updatePeak(v);
+        if (m_playbackWidgets.count(sink_input_idx)) {
+            playbackWidget = m_playbackWidgets[sink_input_idx];
+            playbackWidget->updatePeak(v);
         }
     } else {
         for (const std::pair<const uint32_t, SinkWidget*> &sinkWidget : m_sinkWidgets) {
@@ -990,22 +990,22 @@ void MainWindow::reallyUpdateDeviceVisibility()
 
     bool is_empty = true;
 
-    for (const std::pair<const uint32_t, SinkInputWidget*> &siw : m_sinkInputWidgets) {
-        SinkInputWidget *sinkInputWidget = siw.second;
+    for (const std::pair<const uint32_t, PlaybackWidget*> &siw : m_playbackWidgets) {
+        PlaybackWidget *playbackWidget = siw.second;
 
         if (m_sinkWidgets.size() > 1) {
-            sinkInputWidget->directionLabel->show();
-            sinkInputWidget->deviceButton->show();
+            playbackWidget->directionLabel->show();
+            playbackWidget->deviceButton->show();
         } else {
-            sinkInputWidget->directionLabel->hide();
-            sinkInputWidget->deviceButton->hide();
+            playbackWidget->directionLabel->hide();
+            playbackWidget->deviceButton->hide();
         }
 
-        if (m_showSinkInputType == SINK_INPUT_ALL || sinkInputWidget->type == m_showSinkInputType) {
-            sinkInputWidget->show();
+        if (m_showPlaybackType == SINK_INPUT_ALL || playbackWidget->type == m_showPlaybackType) {
+            playbackWidget->show();
             is_empty = false;
         } else {
-            sinkInputWidget->hide();
+            playbackWidget->hide();
         }
     }
 
@@ -1135,14 +1135,14 @@ void MainWindow::removeSource(uint32_t index)
     updateDeviceVisibility();
 }
 
-void MainWindow::removeSinkInput(uint32_t index)
+void MainWindow::removePlaybackWidget(uint32_t index)
 {
-    if (!m_sinkInputWidgets.count(index)) {
+    if (!m_playbackWidgets.count(index)) {
         return;
     }
 
-    delete m_sinkInputWidgets[index];
-    m_sinkInputWidgets.erase(index);
+    delete m_playbackWidgets[index];
+    m_playbackWidgets.erase(index);
     updateDeviceVisibility();
 }
 
@@ -1164,10 +1164,10 @@ void MainWindow::removeClient(uint32_t index)
 
 void MainWindow::removeAllWidgets()
 {
-    for (const std::pair<const uint32_t, SinkInputWidget*> &sinkInputWidget : m_sinkInputWidgets) {
-        sinkInputWidget.second->deleteLater();
+    for (const std::pair<const uint32_t, PlaybackWidget*> &playbackWidget : m_playbackWidgets) {
+        playbackWidget.second->deleteLater();
     }
-    m_sinkInputWidgets.clear();
+    m_playbackWidgets.clear();
 
     for (const std::pair<const uint32_t, SourceOutputWidget*> &sourceOutputWidget : m_sourceOutputWidgets) {
         sourceOutputWidget.second->deleteLater();
@@ -1235,14 +1235,14 @@ void MainWindow::onSourceTypeComboBoxChanged(int index)
     updateDeviceVisibility();
 }
 
-void MainWindow::onSinkInputTypeComboBoxChanged(int index)
+void MainWindow::onPlaybackTypeComboBoxChanged(int index)
 {
     Q_UNUSED(index);
 
-    m_showSinkInputType = (SinkInputType) m_sinkInputTypeComboBox->currentIndex();
+    m_showPlaybackType = (PlaybackType) m_playbackTypeComboBox->currentIndex();
 
-    if (m_showSinkInputType == (SinkInputType) - 1) {
-        m_sinkInputTypeComboBox->setCurrentIndex((int) SINK_INPUT_CLIENT);
+    if (m_showPlaybackType == (PlaybackType) - 1) {
+        m_playbackTypeComboBox->setCurrentIndex((int) SINK_INPUT_CLIENT);
     }
 
     updateDeviceVisibility();
@@ -1297,18 +1297,18 @@ void MainWindow::onShowVolumeMetersCheckButtonToggled(bool toggled)
         sourceWidget->setVolumeMeterVisible(state);
     }
 
-    for (const std::pair<const uint32_t, SinkInputWidget*> &siw : m_sinkInputWidgets) {
-        SinkInputWidget *sinkInputWidget = siw.second;
+    for (const std::pair<const uint32_t, PlaybackWidget*> &siw : m_playbackWidgets) {
+        PlaybackWidget *playbackWidget = siw.second;
 
-        if (sinkInputWidget->peak) {
-            operation = pa_stream_cork(sinkInputWidget->peak, (int)!state, nullptr, nullptr);
+        if (playbackWidget->peak) {
+            operation = pa_stream_cork(playbackWidget->peak, (int)!state, nullptr, nullptr);
 
             if (operation) {
                 pa_operation_unref(operation);
             }
         }
 
-        sinkInputWidget->setVolumeMeterVisible(state);
+        playbackWidget->setVolumeMeterVisible(state);
     }
 
     for (const std::pair<const uint32_t, SourceOutputWidget*> &sow : m_sourceOutputWidgets) {
