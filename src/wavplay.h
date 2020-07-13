@@ -23,7 +23,7 @@ public slots:
 private:
     void uploadSample();
 
-    static void playCallback(pa_context *c, int success, void *userdata);
+    static void uploadStartedCallback(pa_context *c, int success, void *userdata);
     static void stateCallback(pa_stream *s, void *userdata);
     static void requestCallback(pa_stream *s, size_t length, void *userdata);
     static void underflowCallback(pa_stream *s, void *userdata);

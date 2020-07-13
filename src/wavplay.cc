@@ -156,23 +156,13 @@ void WavPlay::playSound(const QString &device)
         return;
     }
 
-    if (m_playingOperation) {
-        pa_operation_cancel(m_playingOperation);
-        pa_operation_unref(m_playingOperation);
-        m_playingOperation = nullptr;
-    }
 
-    m_playingOperation = pa_context_play_sample(get_context(), m_name.constData(), device.toUtf8().constData(), PA_VOLUME_INVALID, &WavPlay::playCallback, this);
-    if (!m_playingOperation) {
+    pa_operation *playingOperation = pa_context_play_sample(get_context(), m_name.constData(), device.toUtf8().constData(), PA_VOLUME_INVALID, &WavPlay::uploadStartedCallback, this);
+    if (!playingOperation) {
         qWarning() << "Failed to play";
+        return;
     }
-    qDebug() << "Playing";
-
-//    if (m_uploadStream) {
-//        pa_stream_unref(m_uploadStream);
-//        m_uploadStream = nullptr;
-//    }
-
+    pa_operation_unref(playingOperation);
 }
 
 void WavPlay::uploadSample()
@@ -227,12 +217,10 @@ void WavPlay::uploadSample()
     qDebug() << "Stream connect";
     if (pa_stream_connect_upload(m_uploadStream, m_data.length() - sizeof(WavHeader)) != 0) {
         qWarning() << "pa_stream_connect_playback() failed: %s\n" << pa_strerror(pa_context_errno(get_context()));
-//        qWarning() << "Invalid blah";
     }
-    qDebug() << "Starting upload";
 }
 
-void WavPlay::playCallback(pa_context *c, int success, void *userdata)
+void WavPlay::uploadStartedCallback(pa_context *c, int success, void *userdata)
 {
     WavPlay *that = reinterpret_cast<WavPlay*>(userdata);
     if (!success) {
