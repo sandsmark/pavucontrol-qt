@@ -411,7 +411,7 @@ void subscribe_cb(pa_context *c, pa_subscription_event_type_t t, uint32_t index,
 
     case PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT:
         if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
-            w->m_removeRecordingWidget(index);
+            w->removeRecordingWidget(index);
         } else {
             pa_operation *o;
 

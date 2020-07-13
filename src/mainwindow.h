@@ -65,7 +65,7 @@ public:
     void removeOutputWidget(uint32_t index);
     void removeInputDevice(uint32_t index);
     void removePlaybackWidget(uint32_t index);
-    void m_removeRecordingWidget(uint32_t index);
+    void removeRecordingWidget(uint32_t index);
     void removeClient(uint32_t index);
 
     void removeAllWidgets();
@@ -88,7 +88,7 @@ protected Q_SLOTS:
     virtual void onPlaybackTypeComboBoxChanged(int index);
     virtual void onRecordingTypeComboBoxChanged(int index);
     virtual void onOutputTypeComboBoxChanged(int index);
-    virtual void onSourceTypeComboBoxChanged(int index);
+    virtual void onInputDeviceTypeComboBoxChanged(int index);
     virtual void onShowVolumeMetersCheckButtonToggled(bool toggled);
 
 public:

@@ -151,7 +151,7 @@ MainWindow::MainWindow(QWidget *parent):
     connect(m_playbackTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onPlaybackTypeComboBoxChanged);
     connect(m_recordingTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onRecordingTypeComboBoxChanged);
     connect(m_outputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onOutputTypeComboBoxChanged);
-    connect(m_inputDeviceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceTypeComboBoxChanged);
+    connect(m_inputDeviceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onInputDeviceTypeComboBoxChanged);
     connect(m_showVolumeMetersCheckButton, &QCheckBox::toggled, this, &MainWindow::onShowVolumeMetersCheckButtonToggled);
 
     QAction *quit = new QAction{this};
@@ -187,10 +187,10 @@ MainWindow::MainWindow(QWidget *parent):
         m_outputTypeComboBox->setCurrentIndex(outputTypeSelection.toInt());
     }
 
-    const QVariant sourceTypeSelection = config.value(QStringLiteral("window/sourceType"));
+    const QVariant inputDeviceTypeSelection = config.value(QStringLiteral("window/sourceType"));
 
-    if (sourceTypeSelection.isValid()) {
-        m_inputDeviceTypeComboBox->setCurrentIndex(sourceTypeSelection.toInt());
+    if (inputDeviceTypeSelection.isValid()) {
+        m_inputDeviceTypeComboBox->setCurrentIndex(inputDeviceTypeSelection.toInt());
     }
 
     /* Hide first and show when we're connected */
@@ -1146,7 +1146,7 @@ void MainWindow::removePlaybackWidget(uint32_t index)
     updateDeviceVisibility();
 }
 
-void MainWindow::m_removeRecordingWidget(uint32_t index)
+void MainWindow::removeRecordingWidget(uint32_t index)
 {
     if (!m_recordingWidgets.count(index)) {
         return;
@@ -1222,7 +1222,7 @@ void MainWindow::onOutputTypeComboBoxChanged(int index)
     updateDeviceVisibility();
 }
 
-void MainWindow::onSourceTypeComboBoxChanged(int index)
+void MainWindow::onInputDeviceTypeComboBoxChanged(int index)
 {
     Q_UNUSED(index);
 
