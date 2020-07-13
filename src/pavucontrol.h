@@ -52,12 +52,12 @@ enum SourceOutputType {
     SOURCE_OUTPUT_VIRTUAL
 };
 
-enum SourceType {
-    SOURCE_ALL,
-    SOURCE_NO_MONITOR,
-    SOURCE_HARDWARE,
-    SOURCE_VIRTUAL,
-    SOURCE_MONITOR,
+enum InputDeviceType {
+    INPUT_DEVICE_ALL,
+    INPUT_DEVICE_NO_MONITOR,
+    INPUT_DEVICE_HARDWARE,
+    INPUT_DEVICE_VIRTUAL,
+    INPUT_DEVICE_MONITOR,
 };
 
 pa_context *get_context(void);

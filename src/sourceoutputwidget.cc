@@ -86,8 +86,8 @@ void SourceOutputWidget::setSourceIndex(uint32_t idx)
 {
     mSourceIndex = idx;
 
-    if (mpMainWindow->m_sourceWidgets.count(idx)) {
-        SourceWidget *w = mpMainWindow->m_sourceWidgets[idx];
+    if (mpMainWindow->m_inputDeviceWidgets.count(idx)) {
+        InputDeviceWidget *w = mpMainWindow->m_inputDeviceWidgets[idx];
         deviceButton->setText(QString::fromUtf8(w->description));
     } else {
         deviceButton->setText(tr("Unknown input"));
@@ -144,7 +144,7 @@ void SourceOutputWidget::onKill()
 
 void SourceOutputWidget::buildMenu()
 {
-    for (const std::pair<const uint32_t, SourceWidget*> &sourceWidget : mpMainWindow->m_sourceWidgets) {
+    for (const std::pair<const uint32_t, InputDeviceWidget*> &sourceWidget : mpMainWindow->m_inputDeviceWidgets) {
         menu->addAction(new SourceMenuItem{this, sourceWidget.second->description.constData(), sourceWidget.second->index, sourceWidget.second->index == mSourceIndex, menu});
     }
 }

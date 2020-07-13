@@ -23,12 +23,12 @@
 #include <QToolButton>
 #include <QComboBox>
 
-SourceWidget::SourceWidget(MainWindow *parent) :
+InputDeviceWidget::InputDeviceWidget(MainWindow *parent) :
     DeviceWidget(parent, "source")
 {
 }
 
-void SourceWidget::executeVolumeUpdate()
+void InputDeviceWidget::executeVolumeUpdate()
 {
     pa_operation *o;
 
@@ -42,7 +42,7 @@ void SourceWidget::executeVolumeUpdate()
     pa_operation_unref(o);
 }
 
-void SourceWidget::onMuteToggleButton()
+void InputDeviceWidget::onMuteToggleButton()
 {
     DeviceWidget::onMuteToggleButton();
 
@@ -60,7 +60,7 @@ void SourceWidget::onMuteToggleButton()
     pa_operation_unref(o);
 }
 
-void SourceWidget::onDefaultToggleButton()
+void InputDeviceWidget::onDefaultToggleButton()
 {
     pa_operation *o;
 
@@ -76,7 +76,7 @@ void SourceWidget::onDefaultToggleButton()
     pa_operation_unref(o);
 }
 
-void SourceWidget::onPortChange()
+void InputDeviceWidget::onPortChange()
 {
     if (updating) {
         return;

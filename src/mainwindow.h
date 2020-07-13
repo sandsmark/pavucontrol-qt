@@ -31,7 +31,7 @@
 
 class CardWidget;
 class OutputWidget;
-class SourceWidget;
+class InputDeviceWidget;
 class PlaybackWidget;
 class SourceOutputWidget;
 class RoleWidget;
@@ -52,7 +52,7 @@ public:
 
     void updateCard(const pa_card_info &info);
     bool updateOutputWidget(const pa_sink_info &info);
-    void updateSource(const pa_source_info &info);
+    void updateInputDeviceWidget(const pa_source_info &info);
     void updatePlaybackWidget(const pa_sink_input_info &info);
     void updateSourceOutput(const pa_source_output_info &info);
     void updateClient(const pa_client_info &info);
@@ -63,7 +63,7 @@ public:
 
     void removeCard(uint32_t index);
     void removeOutputWidget(uint32_t index);
-    void removeSource(uint32_t index);
+    void removeInputDevice(uint32_t index);
     void removePlaybackWidget(uint32_t index);
     void removeSourceOutput(uint32_t index);
     void removeClient(uint32_t index);
@@ -74,7 +74,7 @@ public:
 
     std::map<uint32_t, CardWidget *> m_cardWidgets;
     std::map<uint32_t, OutputWidget *> m_outputWidgets;
-    std::map<uint32_t, SourceWidget *> m_sourceWidgets;
+    std::map<uint32_t, InputDeviceWidget *> m_inputDeviceWidgets;
     std::map<uint32_t, PlaybackWidget *> m_playbackWidgets;
     std::map<uint32_t, SourceOutputWidget *> m_sourceOutputWidgets;
 
@@ -82,7 +82,7 @@ public:
     PlaybackType m_showPlaybackType;
     OutputType m_showOutputType;
     SourceOutputType m_showSourceOutputType;
-    SourceType m_showSourceType;
+    InputDeviceType m_showInputDeviceType;
 
 protected Q_SLOTS:
     virtual void onPlaybackTypeComboBoxChanged(int index);
@@ -121,19 +121,19 @@ private:
     QComboBox *m_playbackTypeComboBox;
     QComboBox *m_sourceOutputTypeComboBox;
     QComboBox *m_outputTypeComboBox;
-    QComboBox *m_sourceTypeComboBox ;
+    QComboBox *m_inputDeviceTypeComboBox ;
     QCheckBox *m_showVolumeMetersCheckButton;
 
     QLabel *m_connectingLabel;
     QLabel *m_noStreamsLabel;
     QLabel *m_noRecsLabel;
     QLabel *m_noOutputsLabel;
-    QLabel *m_noSourcesLabel;
+    QLabel *m_noInputDevicesLabel;
     QLabel *m_noCardsLabel;
 
     QWidget *m_cardsVBox;
     QWidget *m_outputsVBox;
-    QWidget *m_sourcesVBox;
+    QWidget *m_inputDevicesVBox;
     QWidget *m_streamsVBox;
     QWidget *m_recsVBox;
 

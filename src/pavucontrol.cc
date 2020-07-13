@@ -138,7 +138,7 @@ void source_cb(pa_context *, const pa_source_info *i, int eol, void *userdata)
         return;
     }
 
-    w->updateSource(*i);
+    w->updateInputDeviceWidget(*i);
 }
 
 void sink_input_cb(pa_context *, const pa_sink_input_info *i, int eol, void *userdata)
@@ -186,7 +186,7 @@ void source_output_cb(pa_context *, const pa_source_output_info *i, int eol, voi
                         w->m_notebook->setCurrentIndex(0);
                     } else if (!w->m_sourceOutputWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(1);
-                    } else if (!w->m_sourceWidgets.empty() && w->m_outputWidgets.empty()) {
+                    } else if (!w->m_inputDeviceWidgets.empty() && w->m_outputWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(3);
                     } else {
                         w->m_notebook->setCurrentIndex(2);
@@ -379,7 +379,7 @@ void subscribe_cb(pa_context *c, pa_subscription_event_type_t t, uint32_t index,
 
     case PA_SUBSCRIPTION_EVENT_SOURCE:
         if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
-            w->removeSource(index);
+            w->removeInputDevice(index);
         } else {
             pa_operation *o;
 

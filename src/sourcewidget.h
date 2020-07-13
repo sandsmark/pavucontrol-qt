@@ -25,14 +25,14 @@
 
 #include "devicewidget.h"
 
-class SourceWidget : public DeviceWidget
+class InputDeviceWidget : public DeviceWidget
 {
     Q_OBJECT
 public:
-    SourceWidget(MainWindow *parent);
-    static SourceWidget *create(MainWindow *mainWindow);
+    InputDeviceWidget(MainWindow *parent);
+    static InputDeviceWidget *create(MainWindow *mainWindow);
 
-    SourceType type;
+    InputDeviceType type;
     bool can_decibel;
 
     virtual void onMuteToggleButton();

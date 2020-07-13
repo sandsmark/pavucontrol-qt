@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent):
     m_showPlaybackType(SINK_INPUT_CLIENT),
     m_showOutputType(OUTPUT_ALL),
     m_showSourceOutputType(SOURCE_OUTPUT_CLIENT),
-    m_showSourceType(SOURCE_NO_MONITOR),
+    m_showInputDeviceType(INPUT_DEVICE_NO_MONITOR),
     m_eventRoleWidget(nullptr),
     m_canRenameDevices(false),
     m_connected(false),
@@ -105,8 +105,8 @@ MainWindow::MainWindow(QWidget *parent):
         tr("Hardware Output Devices"),
         tr("Virtual Output Devices"),
     });
-    m_sourceTypeComboBox = new QComboBox;
-    m_sourceTypeComboBox->addItems( {
+    m_inputDeviceTypeComboBox = new QComboBox;
+    m_inputDeviceTypeComboBox->addItems( {
         tr("All Input Devices"),
         tr("All Except Monitors"),
         tr("Hardware Input Devices"),
@@ -121,11 +121,11 @@ MainWindow::MainWindow(QWidget *parent):
     m_noStreamsLabel = new QLabel("<i>No application is currently playing audio.</i>");
     m_noRecsLabel = new QLabel(tr("<i>No application is currently recording audio.</i>"));
     m_noOutputsLabel = new QLabel(tr("<i>No output devices available</i>"));
-    m_noSourcesLabel = new QLabel(tr("<i>No input devices available</i>"));
+    m_noInputDevicesLabel = new QLabel(tr("<i>No input devices available</i>"));
     m_noCardsLabel = new QLabel(tr("<i>No cards available for configuration</i>"));
 
     m_outputsVBox = new QWidget;
-    m_sourcesVBox = new QWidget;
+    m_inputDevicesVBox = new QWidget;
     m_streamsVBox = new QWidget;
     m_recsVBox = new QWidget;
     m_cardsVBox = new QWidget;
@@ -136,7 +136,7 @@ MainWindow::MainWindow(QWidget *parent):
     m_notebook->addTab(createTab(m_streamsVBox, m_noStreamsLabel, m_playbackTypeComboBox), tr("&Playback"));
     m_notebook->addTab(createTab(m_recsVBox, m_noRecsLabel, m_sourceOutputTypeComboBox), tr("&Recording"));
     m_notebook->addTab(createTab(m_outputsVBox, m_noOutputsLabel, m_outputTypeComboBox), tr("&Output Devices"));
-    m_notebook->addTab(createTab(m_sourcesVBox, m_noSourcesLabel, m_sourceTypeComboBox), tr("&Input Devices"));
+    m_notebook->addTab(createTab(m_inputDevicesVBox, m_noInputDevicesLabel, m_inputDeviceTypeComboBox), tr("&Input Devices"));
     m_notebook->addTab(createTab(m_cardsVBox, m_noCardsLabel, m_showVolumeMetersCheckButton), tr("&Configuration"));
 
     layout()->addWidget(m_notebook);
@@ -145,13 +145,13 @@ MainWindow::MainWindow(QWidget *parent):
     m_playbackTypeComboBox->setCurrentIndex((int) m_showPlaybackType);
     m_sourceOutputTypeComboBox->setCurrentIndex((int) m_showSourceOutputType);
     m_outputTypeComboBox->setCurrentIndex((int) m_showOutputType);
-    m_sourceTypeComboBox->setCurrentIndex((int) m_showSourceType);
+    m_inputDeviceTypeComboBox->setCurrentIndex((int) m_showInputDeviceType);
 
 
     connect(m_playbackTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onPlaybackTypeComboBoxChanged);
     connect(m_sourceOutputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceOutputTypeComboBoxChanged);
     connect(m_outputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onOutputTypeComboBoxChanged);
-    connect(m_sourceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceTypeComboBoxChanged);
+    connect(m_inputDeviceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceTypeComboBoxChanged);
     connect(m_showVolumeMetersCheckButton, &QCheckBox::toggled, this, &MainWindow::onShowVolumeMetersCheckButtonToggled);
 
     QAction *quit = new QAction{this};
@@ -190,7 +190,7 @@ MainWindow::MainWindow(QWidget *parent):
     const QVariant sourceTypeSelection = config.value(QStringLiteral("window/sourceType"));
 
     if (sourceTypeSelection.isValid()) {
-        m_sourceTypeComboBox->setCurrentIndex(sourceTypeSelection.toInt());
+        m_inputDeviceTypeComboBox->setCurrentIndex(sourceTypeSelection.toInt());
     }
 
     /* Hide first and show when we're connected */
@@ -205,7 +205,7 @@ MainWindow::~MainWindow()
     config.setValue(QStringLiteral("window/sinkInputType"), m_playbackTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/sourceOutputType"), m_sourceOutputTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/sinkType"), m_outputTypeComboBox->currentIndex());
-    config.setValue(QStringLiteral("window/sourceType"), m_sourceTypeComboBox->currentIndex());
+    config.setValue(QStringLiteral("window/sourceType"), m_inputDeviceTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/showVolumeMeters"), m_showVolumeMetersCheckButton->isChecked());
 
     m_clientNames.clear();
@@ -384,10 +384,10 @@ void MainWindow::updateCard(const pa_card_info &info)
     }
 
     if (cardWidget->hasSources) {
-        std::map<uint32_t, SourceWidget *>::iterator it;
+        std::map<uint32_t, InputDeviceWidget *>::iterator it;
 
-        for (it = m_sourceWidgets.begin() ; it != m_sourceWidgets.end(); it++) {
-            SourceWidget *sw = it->second;
+        for (it = m_inputDeviceWidgets.begin() ; it != m_inputDeviceWidgets.end(); it++) {
+            InputDeviceWidget *sw = it->second;
 
             if (sw->card_index == cardWidget->index) {
                 sw->updating = true;
@@ -576,47 +576,47 @@ void MainWindow::createMonitorStreamForPlayback(PlaybackWidget *playbackWidget, 
     playbackWidget->peak = createMonitorStreamForSource(m_outputWidgets[sink_idx]->monitor_index, playbackWidget->index);
 }
 
-void MainWindow::updateSource(const pa_source_info &info)
+void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
 {
     bool isNew = false;
-    SourceWidget *sourceWidget = nullptr;
-    if (m_sourceWidgets.count(info.index)) {
-        sourceWidget = m_sourceWidgets[info.index];
+    InputDeviceWidget *inputDeviceWidget = nullptr;
+    if (m_inputDeviceWidgets.count(info.index)) {
+        inputDeviceWidget = m_inputDeviceWidgets[info.index];
     } else {
-        m_sourceWidgets[info.index] = sourceWidget = new SourceWidget(this);
-        connect(sourceWidget, &SourceWidget::requestBop, m_popPlayer, &WavPlay::playSound);
+        m_inputDeviceWidgets[info.index] = inputDeviceWidget = new InputDeviceWidget(this);
+        connect(inputDeviceWidget, &InputDeviceWidget::requestBop, m_popPlayer, &WavPlay::playSound);
 
-        sourceWidget->setChannelMap(info.channel_map, !!(info.flags & PA_SOURCE_DECIBEL_VOLUME));
-        m_sourcesVBox->layout()->addWidget(sourceWidget);
+        inputDeviceWidget->setChannelMap(info.channel_map, !!(info.flags & PA_SOURCE_DECIBEL_VOLUME));
+        m_inputDevicesVBox->layout()->addWidget(inputDeviceWidget);
 
-        sourceWidget->index = info.index;
+        inputDeviceWidget->index = info.index;
         isNew = true;
 
-        sourceWidget->setBaseVolume(info.base_volume);
-        sourceWidget->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
+        inputDeviceWidget->setBaseVolume(info.base_volume);
+        inputDeviceWidget->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
 
         if (pa_context_get_server_protocol_version(get_context()) >= 13) {
-            sourceWidget->peak = createMonitorStreamForSource(info.index, -1, !!(info.flags & PA_SOURCE_NETWORK));
+            inputDeviceWidget->peak = createMonitorStreamForSource(info.index, -1, !!(info.flags & PA_SOURCE_NETWORK));
         }
     }
 
-    sourceWidget->updating = true;
+    inputDeviceWidget->updating = true;
 
-    sourceWidget->card_index = info.card;
-    sourceWidget->name = info.name;
-    sourceWidget->description = info.description;
-    sourceWidget->type = info.monitor_of_sink != PA_INVALID_INDEX ? SOURCE_MONITOR : (info.flags & PA_SOURCE_HARDWARE ? SOURCE_HARDWARE : SOURCE_VIRTUAL);
+    inputDeviceWidget->card_index = info.card;
+    inputDeviceWidget->name = info.name;
+    inputDeviceWidget->description = info.description;
+    inputDeviceWidget->type = info.monitor_of_sink != PA_INVALID_INDEX ? INPUT_DEVICE_MONITOR : (info.flags & PA_SOURCE_HARDWARE ? INPUT_DEVICE_HARDWARE : INPUT_DEVICE_VIRTUAL);
 
-    sourceWidget->boldNameLabel->setText(QLatin1String(""));
-    sourceWidget->nameLabel->setText(QString::asprintf("%s", info.description).toHtmlEscaped());
-    sourceWidget->nameLabel->setToolTip(QString::fromUtf8(info.description));
+    inputDeviceWidget->boldNameLabel->setText(QLatin1String(""));
+    inputDeviceWidget->nameLabel->setText(QString::asprintf("%s", info.description).toHtmlEscaped() + " [source widget]");
+    inputDeviceWidget->nameLabel->setToolTip(QString::fromUtf8(info.description));
 
-    sourceWidget->iconImage->setPixmap(utils::findIcon(info, "audio-input-microphone").pixmap(iconSize()));
+    inputDeviceWidget->iconImage->setPixmap(utils::findIcon(info, "audio-input-microphone").pixmap(iconSize()));
 
-    sourceWidget->setVolume(info.volume);
-    sourceWidget->muteToggleButton->setChecked(info.mute);
+    inputDeviceWidget->setVolume(info.volume);
+    inputDeviceWidget->muteToggleButton->setChecked(info.mute);
 
-    sourceWidget->setDefault(sourceWidget->name == m_defaultSourceName);
+    inputDeviceWidget->setDefault(inputDeviceWidget->name == m_defaultSourceName);
 
     QVector<pa_source_port_info> ports;
     for (uint32_t i = 0; i < info.n_ports; ++i) {
@@ -630,21 +630,21 @@ void MainWindow::updateSource(const pa_source_info &info)
         return lhs.priority > rhs.priority;
     });
 
-    sourceWidget->ports.clear();
+    inputDeviceWidget->ports.clear();
     for (const pa_source_port_info &port_priority : ports) {
-        sourceWidget->ports.push_back(std::pair<QByteArray, QByteArray>(port_priority.name, port_priority.description));
+        inputDeviceWidget->ports.push_back(std::pair<QByteArray, QByteArray>(port_priority.name, port_priority.description));
     }
 
-    sourceWidget->activePort = info.active_port ? info.active_port->name : "";
+    inputDeviceWidget->activePort = info.active_port ? info.active_port->name : "";
 
     std::map<uint32_t, CardWidget *>::iterator cardWidget = m_cardWidgets.find(info.card);
     if (cardWidget != m_cardWidgets.end()) {
-        updatePorts(sourceWidget, &cardWidget->second->ports);
+        updatePorts(inputDeviceWidget, &cardWidget->second->ports);
     }
 
-    sourceWidget->prepareMenu();
+    inputDeviceWidget->prepareMenu();
 
-    sourceWidget->updating = false;
+    inputDeviceWidget->updating = false;
 
     if (isNew) {
         updateDeviceVisibility();
@@ -804,8 +804,8 @@ void MainWindow::updateServer(const pa_server_info &info)
         outputWidget.second->updating = false;
     }
 
-    for (const std::pair<const uint32_t, SourceWidget*> &sourceWidget : m_sourceWidgets) {
-        SourceWidget *w = sourceWidget.second;
+    for (const std::pair<const uint32_t, InputDeviceWidget*> &inputDeviceWidget : m_inputDeviceWidgets) {
+        InputDeviceWidget *w = inputDeviceWidget.second;
 
         if (!w) {
             continue;
@@ -941,9 +941,9 @@ void MainWindow::updateVolumeMeter(uint32_t source_index, uint32_t sink_input_id
             }
         }
 
-        for (const std::pair<const uint32_t, SourceWidget*> &sourceWidget : m_sourceWidgets) {
-            if (sourceWidget.second->index == source_index) {
-                sourceWidget.second->updatePeak(v);
+        for (const std::pair<const uint32_t, InputDeviceWidget*> &inputDeviceWidget : m_inputDeviceWidgets) {
+            if (inputDeviceWidget.second->index == source_index) {
+                inputDeviceWidget.second->updatePeak(v);
             }
         }
 
@@ -1024,7 +1024,7 @@ void MainWindow::reallyUpdateDeviceVisibility()
     for (const std::pair<const uint32_t, SourceOutputWidget*> &sow : m_sourceOutputWidgets) {
         SourceOutputWidget *sourceOutputWidget = sow.second;
 
-        if (m_sourceWidgets.size() > 1) {
+        if (m_inputDeviceWidgets.size() > 1) {
             sourceOutputWidget->directionLabel->show();
             sourceOutputWidget->deviceButton->show();
         } else {
@@ -1080,23 +1080,23 @@ void MainWindow::reallyUpdateDeviceVisibility()
 
     is_empty = true;
 
-    for (const std::pair<const uint32_t, SourceWidget*> &sw : m_sourceWidgets) {
-        SourceWidget *sourceWidget = sw.second;
+    for (const std::pair<const uint32_t, InputDeviceWidget*> &sw : m_inputDeviceWidgets) {
+        InputDeviceWidget *inputDeviceWidget = sw.second;
 
-        if (m_showSourceType == SOURCE_ALL ||
-                sourceWidget->type == m_showSourceType ||
-                (m_showSourceType == SOURCE_NO_MONITOR && sourceWidget->type != SOURCE_MONITOR)) {
-            sourceWidget->show();
+        if (m_showInputDeviceType == INPUT_DEVICE_ALL ||
+                inputDeviceWidget->type == m_showInputDeviceType ||
+                (m_showInputDeviceType == INPUT_DEVICE_NO_MONITOR && inputDeviceWidget->type != INPUT_DEVICE_MONITOR)) {
+            inputDeviceWidget->show();
             is_empty = false;
         } else {
-            sourceWidget->hide();
+            inputDeviceWidget->hide();
         }
     }
 
     if (is_empty) {
-        m_noSourcesLabel->show();
+        m_noInputDevicesLabel->show();
     } else {
-        m_noSourcesLabel->hide();
+        m_noInputDevicesLabel->hide();
     }
 
     adjustSize();
@@ -1124,14 +1124,14 @@ void MainWindow::removeOutputWidget(uint32_t index)
     updateDeviceVisibility();
 }
 
-void MainWindow::removeSource(uint32_t index)
+void MainWindow::removeInputDevice(uint32_t index)
 {
-    if (!m_sourceWidgets.count(index)) {
+    if (!m_inputDeviceWidgets.count(index)) {
         return;
     }
 
-    delete m_sourceWidgets[index];
-    m_sourceWidgets.erase(index);
+    delete m_inputDeviceWidgets[index];
+    m_inputDeviceWidgets.erase(index);
     updateDeviceVisibility();
 }
 
@@ -1179,10 +1179,10 @@ void MainWindow::removeAllWidgets()
     }
     m_outputWidgets.clear();
 
-    for (const std::pair<const uint32_t, SourceWidget*> &sourceWidget : m_sourceWidgets) {
-        sourceWidget.second->deleteLater();
+    for (const std::pair<const uint32_t, InputDeviceWidget*> &inputDeviceWidget : m_inputDeviceWidgets) {
+        inputDeviceWidget.second->deleteLater();
     }
-    m_sourceWidgets.clear();
+    m_inputDeviceWidgets.clear();
 
     for (const std::pair<const uint32_t, CardWidget*> &cardWidget : m_cardWidgets) {
         cardWidget.second->deleteLater();
@@ -1226,10 +1226,10 @@ void MainWindow::onSourceTypeComboBoxChanged(int index)
 {
     Q_UNUSED(index);
 
-    m_showSourceType = (SourceType) m_sourceTypeComboBox->currentIndex();
+    m_showInputDeviceType = (InputDeviceType) m_inputDeviceTypeComboBox->currentIndex();
 
-    if (m_showSourceType == (SourceType) - 1) {
-        m_sourceTypeComboBox->setCurrentIndex((int) SOURCE_NO_MONITOR);
+    if (m_showInputDeviceType == (InputDeviceType) - 1) {
+        m_inputDeviceTypeComboBox->setCurrentIndex((int) INPUT_DEVICE_NO_MONITOR);
     }
 
     updateDeviceVisibility();
@@ -1283,18 +1283,18 @@ void MainWindow::onShowVolumeMetersCheckButtonToggled(bool toggled)
         outputWidget->setVolumeMeterVisible(state);
     }
 
-    for (const std::pair<const uint32_t, SourceWidget*> &sw : m_sourceWidgets) {
-        SourceWidget *sourceWidget = sw.second;
+    for (const std::pair<const uint32_t, InputDeviceWidget*> &sw : m_inputDeviceWidgets) {
+        InputDeviceWidget *inputDeviceWidget = sw.second;
 
-        if (sourceWidget->peak) {
-            operation = pa_stream_cork(sourceWidget->peak, (int)!state, nullptr, nullptr);
+        if (inputDeviceWidget->peak) {
+            operation = pa_stream_cork(inputDeviceWidget->peak, (int)!state, nullptr, nullptr);
 
             if (operation) {
                 pa_operation_unref(operation);
             }
         }
 
-        sourceWidget->setVolumeMeterVisible(state);
+        inputDeviceWidget->setVolumeMeterVisible(state);
     }
 
     for (const std::pair<const uint32_t, PlaybackWidget*> &siw : m_playbackWidgets) {
