@@ -622,11 +622,15 @@ void context_state_callback(pa_context *c, void *userdata)
             qDebug(QObject::tr("Failed to initialize device restore extension: %s").toUtf8().constData(), pa_strerror(pa_context_errno(context)));
         }
 
-        pa_operation* operation = pa_context_load_module(c, "module-device-manager", "", deviceManagerLoadedCb, w);
-        if (operation) {
-            pa_operation_unref(operation);
-        } else {
-            qDebug(QObject::tr("Failed to load device manager extension: %s").toUtf8().constData(), pa_strerror(pa_context_errno(context)));
+        pa_operation *operation = pa_ext_device_manager_read(context, ext_device_manager_read_cb, userdata);
+        if (!operation) {
+            // Device manager not available, attempt to load it
+            operation = pa_context_load_module(c, "module-device-manager", "", deviceManagerLoadedCb, w);
+            if (operation) {
+                pa_operation_unref(operation);
+            } else {
+                qDebug(QObject::tr("Failed to load device manager extension: %s").toUtf8().constData(), pa_strerror(pa_context_errno(context)));
+            }
         }
 
 
