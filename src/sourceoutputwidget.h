@@ -29,13 +29,13 @@
 class MainWindow;
 class QMenu;
 
-class SourceOutputWidget : public StreamWidget
+class RecordingWidget : public StreamWidget
 {
     Q_OBJECT
 public:
-    SourceOutputWidget(MainWindow *parent);
+    RecordingWidget(MainWindow *parent);
 
-    SourceOutputType type;
+    RecordingType type;
 
     uint32_t index, clientIndex;
     void setSourceIndex(uint32_t idx);

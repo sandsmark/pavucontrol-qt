@@ -46,10 +46,10 @@ enum OutputType {
     OUTPUT_VIRTUAL,
 };
 
-enum SourceOutputType {
-    SOURCE_OUTPUT_ALL,
-    SOURCE_OUTPUT_CLIENT,
-    SOURCE_OUTPUT_VIRTUAL
+enum RecordingType {
+    RECORDING_ALL,
+    RECORDING_APPLICATION,
+    RECORDING_VIRTUAL
 };
 
 enum InputDeviceType {

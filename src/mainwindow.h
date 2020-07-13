@@ -33,7 +33,7 @@ class CardWidget;
 class OutputWidget;
 class InputDeviceWidget;
 class PlaybackWidget;
-class SourceOutputWidget;
+class RecordingWidget;
 class RoleWidget;
 
 class QLabel;
@@ -54,7 +54,7 @@ public:
     bool updateOutputWidget(const pa_sink_info &info);
     void updateInputDeviceWidget(const pa_source_info &info);
     void updatePlaybackWidget(const pa_sink_input_info &info);
-    void updateSourceOutput(const pa_source_output_info &info);
+    void updateRecordingWidget(const pa_source_output_info &info);
     void updateClient(const pa_client_info &info);
     void updateServer(const pa_server_info &info);
     void updateVolumeMeter(uint32_t source_index, uint32_t sink_input_index, double v);
@@ -65,7 +65,7 @@ public:
     void removeOutputWidget(uint32_t index);
     void removeInputDevice(uint32_t index);
     void removePlaybackWidget(uint32_t index);
-    void removeSourceOutput(uint32_t index);
+    void m_removeRecordingWidget(uint32_t index);
     void removeClient(uint32_t index);
 
     void removeAllWidgets();
@@ -76,17 +76,17 @@ public:
     std::map<uint32_t, OutputWidget *> m_outputWidgets;
     std::map<uint32_t, InputDeviceWidget *> m_inputDeviceWidgets;
     std::map<uint32_t, PlaybackWidget *> m_playbackWidgets;
-    std::map<uint32_t, SourceOutputWidget *> m_sourceOutputWidgets;
+    std::map<uint32_t, RecordingWidget *> m_recordingWidgets;
 
     QMap<int, QString> m_clientNames;
     PlaybackType m_showPlaybackType;
     OutputType m_showOutputType;
-    SourceOutputType m_showSourceOutputType;
+    RecordingType m_showRecordingType;
     InputDeviceType m_showInputDeviceType;
 
 protected Q_SLOTS:
     virtual void onPlaybackTypeComboBoxChanged(int index);
-    virtual void onSourceOutputTypeComboBoxChanged(int index);
+    virtual void onRecordingTypeComboBoxChanged(int index);
     virtual void onOutputTypeComboBoxChanged(int index);
     virtual void onSourceTypeComboBoxChanged(int index);
     virtual void onShowVolumeMetersCheckButtonToggled(bool toggled);
@@ -119,7 +119,7 @@ private:
 
     // UI elements
     QComboBox *m_playbackTypeComboBox;
-    QComboBox *m_sourceOutputTypeComboBox;
+    QComboBox *m_recordingTypeComboBox;
     QComboBox *m_outputTypeComboBox;
     QComboBox *m_inputDeviceTypeComboBox ;
     QCheckBox *m_showVolumeMetersCheckButton;

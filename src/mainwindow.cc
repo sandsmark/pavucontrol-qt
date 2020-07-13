@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent):
     QWidget(parent),
     m_showPlaybackType(SINK_INPUT_CLIENT),
     m_showOutputType(OUTPUT_ALL),
-    m_showSourceOutputType(SOURCE_OUTPUT_CLIENT),
+    m_showRecordingType(RECORDING_APPLICATION),
     m_showInputDeviceType(INPUT_DEVICE_NO_MONITOR),
     m_eventRoleWidget(nullptr),
     m_canRenameDevices(false),
@@ -93,8 +93,8 @@ MainWindow::MainWindow(QWidget *parent):
         tr("Applications"),
         tr("Virtual Streams"),
     });
-    m_sourceOutputTypeComboBox = new QComboBox;
-    m_sourceOutputTypeComboBox->addItems( {
+    m_recordingTypeComboBox = new QComboBox;
+    m_recordingTypeComboBox->addItems( {
         tr("All Streams"),
         tr("Applications"),
         tr("Virtual Streams"),
@@ -134,7 +134,7 @@ MainWindow::MainWindow(QWidget *parent):
     // Do layout
     // Tabs
     m_notebook->addTab(createTab(m_streamsVBox, m_noStreamsLabel, m_playbackTypeComboBox), tr("&Playback"));
-    m_notebook->addTab(createTab(m_recsVBox, m_noRecsLabel, m_sourceOutputTypeComboBox), tr("&Recording"));
+    m_notebook->addTab(createTab(m_recsVBox, m_noRecsLabel, m_recordingTypeComboBox), tr("&Recording"));
     m_notebook->addTab(createTab(m_outputsVBox, m_noOutputsLabel, m_outputTypeComboBox), tr("&Output Devices"));
     m_notebook->addTab(createTab(m_inputDevicesVBox, m_noInputDevicesLabel, m_inputDeviceTypeComboBox), tr("&Input Devices"));
     m_notebook->addTab(createTab(m_cardsVBox, m_noCardsLabel, m_showVolumeMetersCheckButton), tr("&Configuration"));
@@ -143,13 +143,13 @@ MainWindow::MainWindow(QWidget *parent):
     layout()->addWidget(m_connectingLabel);
 
     m_playbackTypeComboBox->setCurrentIndex((int) m_showPlaybackType);
-    m_sourceOutputTypeComboBox->setCurrentIndex((int) m_showSourceOutputType);
+    m_recordingTypeComboBox->setCurrentIndex((int) m_showRecordingType);
     m_outputTypeComboBox->setCurrentIndex((int) m_showOutputType);
     m_inputDeviceTypeComboBox->setCurrentIndex((int) m_showInputDeviceType);
 
 
     connect(m_playbackTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onPlaybackTypeComboBoxChanged);
-    connect(m_sourceOutputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceOutputTypeComboBoxChanged);
+    connect(m_recordingTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onRecordingTypeComboBoxChanged);
     connect(m_outputTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onOutputTypeComboBoxChanged);
     connect(m_inputDeviceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainWindow::onSourceTypeComboBoxChanged);
     connect(m_showVolumeMetersCheckButton, &QCheckBox::toggled, this, &MainWindow::onShowVolumeMetersCheckButtonToggled);
@@ -175,10 +175,10 @@ MainWindow::MainWindow(QWidget *parent):
         m_playbackTypeComboBox->setCurrentIndex(playbackTypeSelection.toInt());
     }
 
-    const QVariant sourceOutputTypeSelection = config.value(QStringLiteral("window/sourceOutputType"));
+    const QVariant recordingTypeSelection = config.value(QStringLiteral("window/sourceOutputType"));
 
-    if (sourceOutputTypeSelection.isValid()) {
-        m_sourceOutputTypeComboBox->setCurrentIndex(sourceOutputTypeSelection.toInt());
+    if (recordingTypeSelection.isValid()) {
+        m_recordingTypeComboBox->setCurrentIndex(recordingTypeSelection.toInt());
     }
 
     const QVariant outputTypeSelection = config.value(QStringLiteral("window/sinkType"));
@@ -203,7 +203,7 @@ MainWindow::~MainWindow()
     QSettings config;
     config.setValue(QStringLiteral("window/size"), size());
     config.setValue(QStringLiteral("window/sinkInputType"), m_playbackTypeComboBox->currentIndex());
-    config.setValue(QStringLiteral("window/sourceOutputType"), m_sourceOutputTypeComboBox->currentIndex());
+    config.setValue(QStringLiteral("window/sourceOutputType"), m_recordingTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/sinkType"), m_outputTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/sourceType"), m_inputDeviceTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/showVolumeMeters"), m_showVolumeMetersCheckButton->isChecked());
@@ -712,7 +712,7 @@ void MainWindow::updatePlaybackWidget(const pa_sink_input_info &info)
     }
 }
 
-void MainWindow::updateSourceOutput(const pa_source_output_info &info)
+void MainWindow::updateRecordingWidget(const pa_source_output_info &info)
 {
     static const QSet<QString> mixers({
             "org.PulseAudio.pavucontrol",
@@ -725,42 +725,42 @@ void MainWindow::updateSourceOutput(const pa_source_output_info &info)
     }
 
     bool isNew = false;
-    SourceOutputWidget *sourceOutputWidget;
-    if (m_sourceOutputWidgets.count(info.index)) {
-        sourceOutputWidget = m_sourceOutputWidgets[info.index];
+    RecordingWidget *recordingWidget;
+    if (m_recordingWidgets.count(info.index)) {
+        recordingWidget = m_recordingWidgets[info.index];
     } else {
-        m_sourceOutputWidgets[info.index] = sourceOutputWidget = new SourceOutputWidget(this);
-        sourceOutputWidget->setChannelMap(info.channel_map, true);
-        m_recsVBox->layout()->addWidget(sourceOutputWidget);
+        m_recordingWidgets[info.index] = recordingWidget = new RecordingWidget(this);
+        recordingWidget->setChannelMap(info.channel_map, true);
+        m_recsVBox->layout()->addWidget(recordingWidget);
 
-        sourceOutputWidget->index = info.index;
-        sourceOutputWidget->clientIndex = info.client;
+        recordingWidget->index = info.index;
+        recordingWidget->clientIndex = info.client;
         isNew = true;
-        sourceOutputWidget->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
+        recordingWidget->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
     }
 
-    sourceOutputWidget->updating = true;
+    recordingWidget->updating = true;
 
-    sourceOutputWidget->type = info.client != PA_INVALID_INDEX ? SOURCE_OUTPUT_CLIENT : SOURCE_OUTPUT_VIRTUAL;
+    recordingWidget->type = info.client != PA_INVALID_INDEX ? RECORDING_APPLICATION : RECORDING_VIRTUAL;
 
-    sourceOutputWidget->setSourceIndex(info.source);
+    recordingWidget->setSourceIndex(info.source);
 
     if (m_clientNames.contains(info.client)) {
-        sourceOutputWidget->boldNameLabel->setText(QStringLiteral("<b>%1</b> source output client").arg(m_clientNames[info.client]));
-        sourceOutputWidget->nameLabel->setText(QString::asprintf(": %s", info.name).toHtmlEscaped() + "[source output]");
+        recordingWidget->boldNameLabel->setText(QStringLiteral("<b>%1</b> source output client").arg(m_clientNames[info.client]));
+        recordingWidget->nameLabel->setText(QString::asprintf(": %s", info.name).toHtmlEscaped() + "[source output]");
     } else {
-        sourceOutputWidget->boldNameLabel->clear();
-        sourceOutputWidget->nameLabel->setText(QString::fromUtf8(info.name));
+        recordingWidget->boldNameLabel->clear();
+        recordingWidget->nameLabel->setText(QString::fromUtf8(info.name));
     }
 
-    sourceOutputWidget->nameLabel->setToolTip(QString::fromUtf8(info.name));
+    recordingWidget->nameLabel->setToolTip(QString::fromUtf8(info.name));
 
-    sourceOutputWidget->iconImage->setPixmap(utils::findIcon(info, "audio-input-microphone").pixmap(iconSize()));
+    recordingWidget->iconImage->setPixmap(utils::findIcon(info, "audio-input-microphone").pixmap(iconSize()));
 
-    sourceOutputWidget->setVolume(info.volume);
-    sourceOutputWidget->muteToggleButton->setChecked(info.mute);
+    recordingWidget->setVolume(info.volume);
+    recordingWidget->muteToggleButton->setChecked(info.mute);
 
-    sourceOutputWidget->updating = false;
+    recordingWidget->updating = false;
 
     if (isNew) {
         updateDeviceVisibility();
@@ -947,9 +947,9 @@ void MainWindow::updateVolumeMeter(uint32_t source_index, uint32_t sink_input_id
             }
         }
 
-        for (const std::pair<const uint32_t, SourceOutputWidget*> &sourceOutputWidget : m_sourceOutputWidgets) {
-            if (sourceOutputWidget.second->sourceIndex() == source_index) {
-                sourceOutputWidget.second->updatePeak(v);
+        for (const std::pair<const uint32_t, RecordingWidget*> &recordingWidget : m_recordingWidgets) {
+            if (recordingWidget.second->sourceIndex() == source_index) {
+                recordingWidget.second->updatePeak(v);
             }
         }
     }
@@ -1021,22 +1021,22 @@ void MainWindow::reallyUpdateDeviceVisibility()
 
     is_empty = true;
 
-    for (const std::pair<const uint32_t, SourceOutputWidget*> &sow : m_sourceOutputWidgets) {
-        SourceOutputWidget *sourceOutputWidget = sow.second;
+    for (const std::pair<const uint32_t, RecordingWidget*> &sow : m_recordingWidgets) {
+        RecordingWidget *recordingWidget = sow.second;
 
         if (m_inputDeviceWidgets.size() > 1) {
-            sourceOutputWidget->directionLabel->show();
-            sourceOutputWidget->deviceButton->show();
+            recordingWidget->directionLabel->show();
+            recordingWidget->deviceButton->show();
         } else {
-            sourceOutputWidget->directionLabel->hide();
-            sourceOutputWidget->deviceButton->hide();
+            recordingWidget->directionLabel->hide();
+            recordingWidget->deviceButton->hide();
         }
 
-        if (m_showSourceOutputType == SOURCE_OUTPUT_ALL || sourceOutputWidget->type == m_showSourceOutputType) {
-            sourceOutputWidget->show();
+        if (m_showRecordingType == RECORDING_ALL || recordingWidget->type == m_showRecordingType) {
+            recordingWidget->show();
             is_empty = false;
         } else {
-            sourceOutputWidget->hide();
+            recordingWidget->hide();
         }
     }
 
@@ -1146,14 +1146,14 @@ void MainWindow::removePlaybackWidget(uint32_t index)
     updateDeviceVisibility();
 }
 
-void MainWindow::removeSourceOutput(uint32_t index)
+void MainWindow::m_removeRecordingWidget(uint32_t index)
 {
-    if (!m_sourceOutputWidgets.count(index)) {
+    if (!m_recordingWidgets.count(index)) {
         return;
     }
 
-    delete m_sourceOutputWidgets[index];
-    m_sourceOutputWidgets.erase(index);
+    delete m_recordingWidgets[index];
+    m_recordingWidgets.erase(index);
     updateDeviceVisibility();
 }
 
@@ -1169,10 +1169,10 @@ void MainWindow::removeAllWidgets()
     }
     m_playbackWidgets.clear();
 
-    for (const std::pair<const uint32_t, SourceOutputWidget*> &sourceOutputWidget : m_sourceOutputWidgets) {
-        sourceOutputWidget.second->deleteLater();
+    for (const std::pair<const uint32_t, RecordingWidget*> &recordingWidget : m_recordingWidgets) {
+        recordingWidget.second->deleteLater();
     }
-    m_sourceOutputWidgets.clear();
+    m_recordingWidgets.clear();
 
     for (const std::pair<const uint32_t, OutputWidget*> &outputWidget : m_outputWidgets) {
         outputWidget.second->deleteLater();
@@ -1248,14 +1248,14 @@ void MainWindow::onPlaybackTypeComboBoxChanged(int index)
     updateDeviceVisibility();
 }
 
-void MainWindow::onSourceOutputTypeComboBoxChanged(int index)
+void MainWindow::onRecordingTypeComboBoxChanged(int index)
 {
     Q_UNUSED(index);
 
-    m_showSourceOutputType = (SourceOutputType) m_sourceOutputTypeComboBox->currentIndex();
+    m_showRecordingType = (RecordingType) m_recordingTypeComboBox->currentIndex();
 
-    if (m_showSourceOutputType == (SourceOutputType) - 1) {
-        m_sourceOutputTypeComboBox->setCurrentIndex((int) SOURCE_OUTPUT_CLIENT);
+    if (m_showRecordingType == (RecordingType) - 1) {
+        m_recordingTypeComboBox->setCurrentIndex((int) RECORDING_APPLICATION);
     }
 
     updateDeviceVisibility();
@@ -1311,17 +1311,17 @@ void MainWindow::onShowVolumeMetersCheckButtonToggled(bool toggled)
         playbackWidget->setVolumeMeterVisible(state);
     }
 
-    for (const std::pair<const uint32_t, SourceOutputWidget*> &sow : m_sourceOutputWidgets) {
-        SourceOutputWidget *sourceOutputWidget = sow.second;
+    for (const std::pair<const uint32_t, RecordingWidget*> &sow : m_recordingWidgets) {
+        RecordingWidget *recordingWidget = sow.second;
 
-        if (sourceOutputWidget->peak) {
-            operation = pa_stream_cork(sourceOutputWidget->peak, (int)!state, nullptr, nullptr);
+        if (recordingWidget->peak) {
+            operation = pa_stream_cork(recordingWidget->peak, (int)!state, nullptr, nullptr);
 
             if (operation) {
                 pa_operation_unref(operation);
             }
         }
 
-        sourceOutputWidget->setVolumeMeterVisible(state);
+        recordingWidget->setVolumeMeterVisible(state);
     }
 }

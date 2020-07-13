@@ -184,7 +184,7 @@ void source_output_cb(pa_context *, const pa_source_output_info *i, int eol, voi
                 if (default_tab < 1 || default_tab > w->m_notebook->count()) {
                     if (!w->m_playbackWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(0);
-                    } else if (!w->m_sourceOutputWidgets.empty()) {
+                    } else if (!w->m_recordingWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(1);
                     } else if (!w->m_inputDeviceWidgets.empty() && w->m_outputWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(3);
@@ -203,7 +203,7 @@ void source_output_cb(pa_context *, const pa_source_output_info *i, int eol, voi
         return;
     }
 
-    w->updateSourceOutput(*i);
+    w->updateRecordingWidget(*i);
 }
 
 void client_cb(pa_context *, const pa_client_info *i, int eol, void *userdata)
@@ -411,7 +411,7 @@ void subscribe_cb(pa_context *c, pa_subscription_event_type_t t, uint32_t index,
 
     case PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT:
         if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
-            w->removeSourceOutput(index);
+            w->m_removeRecordingWidget(index);
         } else {
             pa_operation *o;
 

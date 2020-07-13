@@ -25,12 +25,12 @@
 #include <QLabel>
 #include <QToolButton>
 
-class SourceMenuItem : public QAction
+class RecordingMenuItem : public QAction
 {
     Q_OBJECT
 
 public:
-    SourceMenuItem(SourceOutputWidget *w
+    RecordingMenuItem(RecordingWidget *w
                    , const char *label
                    , uint32_t i
                    , bool active
@@ -44,7 +44,7 @@ public:
         connect(this, &QAction::toggled, [this] { onToggle(); });
     }
 
-    SourceOutputWidget *widget;
+    RecordingWidget *widget;
     uint32_t index;
 
 public slots:
@@ -72,7 +72,7 @@ public slots:
     }
 };
 
-SourceOutputWidget::SourceOutputWidget(MainWindow *parent) :
+RecordingWidget::RecordingWidget(MainWindow *parent) :
     StreamWidget(parent),
     menu{new QMenu{this}}
 {
@@ -82,7 +82,7 @@ SourceOutputWidget::SourceOutputWidget(MainWindow *parent) :
     terminate->setText(tr("Terminate Recording"));
 }
 
-void SourceOutputWidget::setSourceIndex(uint32_t idx)
+void RecordingWidget::setSourceIndex(uint32_t idx)
 {
     mSourceIndex = idx;
 
@@ -94,12 +94,12 @@ void SourceOutputWidget::setSourceIndex(uint32_t idx)
     }
 }
 
-uint32_t SourceOutputWidget::sourceIndex()
+uint32_t RecordingWidget::sourceIndex()
 {
     return mSourceIndex;
 }
 
-void SourceOutputWidget::executeVolumeUpdate()
+void RecordingWidget::executeVolumeUpdate()
 {
     pa_operation *o;
 
@@ -111,7 +111,7 @@ void SourceOutputWidget::executeVolumeUpdate()
     pa_operation_unref(o);
 }
 
-void SourceOutputWidget::onMuteToggleButton()
+void RecordingWidget::onMuteToggleButton()
 {
     StreamWidget::onMuteToggleButton();
 
@@ -129,7 +129,7 @@ void SourceOutputWidget::onMuteToggleButton()
     pa_operation_unref(o);
 }
 
-void SourceOutputWidget::onKill()
+void RecordingWidget::onKill()
 {
     pa_operation *o;
 
@@ -142,14 +142,14 @@ void SourceOutputWidget::onKill()
 }
 
 
-void SourceOutputWidget::buildMenu()
+void RecordingWidget::buildMenu()
 {
     for (const std::pair<const uint32_t, InputDeviceWidget*> &sourceWidget : mpMainWindow->m_inputDeviceWidgets) {
-        menu->addAction(new SourceMenuItem{this, sourceWidget.second->description.constData(), sourceWidget.second->index, sourceWidget.second->index == mSourceIndex, menu});
+        menu->addAction(new RecordingMenuItem{this, sourceWidget.second->description.constData(), sourceWidget.second->index, sourceWidget.second->index == mSourceIndex, menu});
     }
 }
 
-void SourceOutputWidget::onDeviceChangePopup()
+void RecordingWidget::onDeviceChangePopup()
 {
     menu->clear();
     buildMenu();
