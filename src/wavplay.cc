@@ -9,45 +9,26 @@
 
 #include "pavucontrol.h"
 
-void WavPlay::stateCallback(pa_stream *s, void *userdata)
+void WavPlay::stateCallback(pa_stream *stream, void *userdata)
 {
     WavPlay *that = reinterpret_cast<WavPlay*>(userdata);
-    assert(s);
+    assert(stream);
 
-    switch (pa_stream_get_state(s)) {
-    case PA_STREAM_CREATING:
+    switch (pa_stream_get_state(stream)) {
     case PA_STREAM_TERMINATED:
+        that->m_uploadComplete = true;
+        pa_stream_unref(that->m_uploadStream);
+        that->m_uploadStream = nullptr;
         break;
 
+    case PA_STREAM_CREATING:
     case PA_STREAM_READY:
-        const pa_buffer_attr *a;
-        char cmt[PA_CHANNEL_MAP_SNPRINT_MAX], sst[PA_SAMPLE_SPEC_SNPRINT_MAX];
-
-        fprintf(stderr, "Stream successfully created.\n");
-
-        if (!(a = pa_stream_get_buffer_attr(s)))
-            fprintf(stderr, "pa_stream_get_buffer_attr() failed: %s\n", pa_strerror(pa_context_errno(pa_stream_get_context(s))));
-        else {
-
-            fprintf(stderr, "Buffer metrics: maxlength=%u, tlength=%u, prebuf=%u, minreq=%u\n", a->maxlength, a->tlength, a->prebuf, a->minreq);
-        }
-
-        fprintf(stderr, "Using sample spec '%s', channel map '%s'.\n",
-                pa_sample_spec_snprint(sst, sizeof(sst), pa_stream_get_sample_spec(s)),
-                pa_channel_map_snprint(cmt, sizeof(cmt), pa_stream_get_channel_map(s)));
-
-        fprintf(stderr, "Connected to device %s (%u, %ssuspended).\n",
-                pa_stream_get_device_name(s),
-                pa_stream_get_device_index(s),
-                pa_stream_is_suspended(s) ? "" : "not ");
-
-        that->m_uploadComplete = true;
         break;
     case PA_STREAM_FAILED:
-        qWarning() << "Stream error" << pa_strerror(pa_context_errno(pa_stream_get_context(s)));
+        qWarning() << "Stream error" << pa_strerror(pa_context_errno(pa_stream_get_context(stream)));
         break;
     default:
-        qWarning() << "Unhandled state" << pa_stream_get_state(s);
+        qWarning() << "Unhandled state" << pa_stream_get_state(stream);
         break;
     }
 }
@@ -153,11 +134,6 @@ WavPlay::~WavPlay()
     if (m_uploadComplete) {
         pa_context_remove_sample(get_context(), m_name.constData(), nullptr, nullptr);
     }
-
-    if (m_playingOperation) {
-        pa_operation_unref(m_playingOperation);
-        m_playingOperation = nullptr;
-    }
 }
 
 void WavPlay::playSound(const QString &device)
@@ -167,7 +143,8 @@ void WavPlay::playSound(const QString &device)
             uploadSample();
             return;
         }
-        qWarning() << "Sample not uploaded yet";
+
+        qWarning() << "Sample not uploaded yet, and no upload started";
         return;
     }
 
@@ -232,7 +209,6 @@ void WavPlay::requestCallback(pa_stream *s, size_t maxLength, void *userdata)
         qWarning() << "Can't give more";
         return;
     }
-    qDebug() << "Uploading" << length << "bytes";
 
     const uint8_t *data = reinterpret_cast<const uint8_t *>(that->m_data.constData() + that->m_position);
 
@@ -243,7 +219,6 @@ void WavPlay::requestCallback(pa_stream *s, size_t maxLength, void *userdata)
 
     that->m_position += length;
     if (that->m_position >= size_t(that->m_data.length())) {
-        qDebug() << "Upload complete";
         pa_stream_finish_upload(s);
     }
 }

@@ -38,7 +38,7 @@ private:
 
     pa_stream *m_uploadStream = nullptr;
 
-    QByteArray m_name = "none";
+    QByteArray m_name = "pavucontrol-qt-bop";
     pa_operation *m_playingOperation = nullptr;
     std::unique_ptr<pa_sample_spec> m_sampleSpec;
 };
