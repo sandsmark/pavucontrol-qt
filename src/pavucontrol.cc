@@ -31,7 +31,7 @@
 #include "cardwidget.h"
 #include "sinkwidget.h"
 #include "sourcewidget.h"
-#include "sinkinputwidget.h"
+#include "playbackwidget.h"
 #include "sourceoutputwidget.h"
 #include "rolewidget.h"
 #include "mainwindow.h"

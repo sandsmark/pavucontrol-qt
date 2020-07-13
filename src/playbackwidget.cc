@@ -18,7 +18,7 @@
   along with pavucontrol. If not, see <https://www.gnu.org/licenses/>.
 ***/
 
-#include "sinkinputwidget.h"
+#include "playbackwidget.h"
 
 #include "mainwindow.h"
 #include "sinkwidget.h"
@@ -157,4 +157,4 @@ void PlaybackWidget::onDeviceChangePopup()
     menu->popup(QCursor::pos());
 }
 
-#include "sinkinputwidget.moc"
+#include "playbackwidget.moc"

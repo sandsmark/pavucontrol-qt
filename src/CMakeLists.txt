@@ -10,7 +10,7 @@ set(pavucontrol-qt_HDRS
     devicewidget.h
     minimalstreamwidget.h
     rolewidget.h
-    sinkinputwidget.h
+    playbackwidget.h
     sinkwidget.h
     sourceoutputwidget.h
     sourcewidget.h
@@ -26,7 +26,7 @@ set(pavucontrol-qt_SRCS
     devicewidget.cc
     minimalstreamwidget.cc
     rolewidget.cc
-    sinkinputwidget.cc
+    playbackwidget.cc
     sinkwidget.cc
     sourceoutputwidget.cc
     sourcewidget.cc
