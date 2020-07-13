@@ -18,7 +18,7 @@
   along with pavucontrol. If not, see <https://www.gnu.org/licenses/>.
 ***/
 
-#include "sourcewidget.h"
+#include "inputdevicewidget.h"
 
 #include <QToolButton>
 #include <QComboBox>

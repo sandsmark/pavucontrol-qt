@@ -20,7 +20,7 @@
 
 #include "sourceoutputwidget.h"
 #include "mainwindow.h"
-#include "sourcewidget.h"
+#include "inputdevicewidget.h"
 #include <QMenu>
 #include <QLabel>
 #include <QToolButton>

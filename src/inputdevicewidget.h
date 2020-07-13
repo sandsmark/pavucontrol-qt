@@ -18,8 +18,7 @@
   along with pavucontrol. If not, see <https://www.gnu.org/licenses/>.
 ***/
 
-#ifndef sourcewidget_h
-#define sourcewidget_h
+#pragma once
 
 #include "pavucontrol.h"
 
@@ -42,5 +41,3 @@ public:
 protected:
     virtual void onPortChange();
 };
-
-#endif

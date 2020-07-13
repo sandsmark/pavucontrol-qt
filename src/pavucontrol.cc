@@ -30,7 +30,7 @@
 #include "streamwidget.h"
 #include "cardwidget.h"
 #include "outputwidget.h"
-#include "sourcewidget.h"
+#include "inputdevicewidget.h"
 #include "playbackwidget.h"
 #include "sourceoutputwidget.h"
 #include "rolewidget.h"

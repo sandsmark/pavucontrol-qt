@@ -13,7 +13,7 @@ set(pavucontrol-qt_HDRS
     playbackwidget.h
     outputwidget.h
     sourceoutputwidget.h
-    sourcewidget.h
+    inputdevicewidget.h
     streamwidget.h
     wavplay.h
 )
@@ -29,7 +29,7 @@ set(pavucontrol-qt_SRCS
     playbackwidget.cc
     outputwidget.cc
     sourceoutputwidget.cc
-    sourcewidget.cc
+    inputdevicewidget.cc
     streamwidget.cc
     wavplay.cc
 )
