@@ -40,10 +40,10 @@ enum PlaybackType {
     SINK_INPUT_VIRTUAL
 };
 
-enum SinkType {
-    SINK_ALL,
-    SINK_HARDWARE,
-    SINK_VIRTUAL,
+enum OutputType {
+    OUTPUT_ALL,
+    OUTPUT_HARDWARE,
+    OUTPUT_VIRTUAL,
 };
 
 enum SourceOutputType {

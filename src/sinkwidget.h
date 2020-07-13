@@ -36,13 +36,13 @@ typedef struct {
     QCheckBox *widget;
 } encodingList;
 
-class SinkWidget : public DeviceWidget
+class OutputWidget : public DeviceWidget
 {
     Q_OBJECT
 public:
-    SinkWidget(MainWindow *parent);
+    OutputWidget(MainWindow *parent);
 
-    SinkType type;
+    OutputType type;
     uint32_t monitor_index;
     bool can_decibel;
 

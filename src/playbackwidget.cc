@@ -88,8 +88,8 @@ void PlaybackWidget::setPlaybackIndex(uint32_t idx)
 {
     mSinkIndex = idx;
 
-    if (mpMainWindow->m_sinkWidgets.count(idx)) {
-        SinkWidget *w = mpMainWindow->m_sinkWidgets[idx];
+    if (mpMainWindow->m_outputWidgets.count(idx)) {
+        OutputWidget *w = mpMainWindow->m_outputWidgets[idx];
         deviceButton->setText(QString::fromUtf8(w->description));
     } else {
         deviceButton->setText(tr("Unknown output"));
@@ -145,7 +145,7 @@ void PlaybackWidget::onKill()
 
 void PlaybackWidget::buildMenu()
 {
-    for (const std::pair<const uint32_t, SinkWidget*> &sinkWidget : mpMainWindow->m_sinkWidgets) {
+    for (const std::pair<const uint32_t, OutputWidget*> &sinkWidget : mpMainWindow->m_outputWidgets) {
         menu->addAction(new SinkMenuItem{this, sinkWidget.second->description.constData(), sinkWidget.second->index, sinkWidget.second->index == mSinkIndex, menu});
     }
 }

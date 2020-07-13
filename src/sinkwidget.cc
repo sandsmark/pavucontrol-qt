@@ -27,7 +27,7 @@
 #include <QToolButton>
 #include <QComboBox>
 
-SinkWidget::SinkWidget(MainWindow *parent) :
+OutputWidget::OutputWidget(MainWindow *parent) :
     DeviceWidget(parent, "sink")
 {
 
@@ -35,27 +35,27 @@ SinkWidget::SinkWidget(MainWindow *parent) :
 
     encodings[i].encoding = PA_ENCODING_PCM;
     encodings[i].widget = encodingFormatPCM;
-    connect(encodings[i].widget, &QCheckBox::toggled, this, &SinkWidget::onEncodingsChange);
+    connect(encodings[i].widget, &QCheckBox::toggled, this, &OutputWidget::onEncodingsChange);
 
     ++i;
     encodings[i].encoding = PA_ENCODING_AC3_IEC61937;
     encodings[i].widget = encodingFormatAC3;
-    connect(encodings[i].widget, &QCheckBox::toggled, this, &SinkWidget::onEncodingsChange);
+    connect(encodings[i].widget, &QCheckBox::toggled, this, &OutputWidget::onEncodingsChange);
 
     ++i;
     encodings[i].encoding = PA_ENCODING_EAC3_IEC61937;
     encodings[i].widget = encodingFormatEAC3;
-    connect(encodings[i].widget, &QCheckBox::toggled, this, &SinkWidget::onEncodingsChange);
+    connect(encodings[i].widget, &QCheckBox::toggled, this, &OutputWidget::onEncodingsChange);
 
     ++i;
     encodings[i].encoding = PA_ENCODING_MPEG_IEC61937;
     encodings[i].widget = encodingFormatMPEG;
-    connect(encodings[i].widget, &QCheckBox::toggled, this, &SinkWidget::onEncodingsChange);
+    connect(encodings[i].widget, &QCheckBox::toggled, this, &OutputWidget::onEncodingsChange);
 
     ++i;
     encodings[i].encoding = PA_ENCODING_DTS_IEC61937;
     encodings[i].widget = encodingFormatDTS;
-    connect(encodings[i].widget, &QCheckBox::toggled, this, &SinkWidget::onEncodingsChange);
+    connect(encodings[i].widget, &QCheckBox::toggled, this, &OutputWidget::onEncodingsChange);
 
     ++i;
     encodings[i].encoding = PA_ENCODING_INVALID;
@@ -64,14 +64,14 @@ SinkWidget::SinkWidget(MainWindow *parent) :
 #ifdef PA_ENCODING_MPEG2_AAC_IEC61937
     if (pa_context_get_server_protocol_version(get_context()) >= 28) {
         encodings[i].encoding = PA_ENCODING_MPEG2_AAC_IEC61937;
-        connect(encodings[i].widget, &QCheckBox::toggled, this, &SinkWidget::onEncodingsChange);
+        connect(encodings[i].widget, &QCheckBox::toggled, this, &OutputWidget::onEncodingsChange);
         encodings[i].widget->setEnabled(true);
     }
 #endif
 
 }
 
-void SinkWidget::executeVolumeUpdate()
+void OutputWidget::executeVolumeUpdate()
 {
     pa_operation *o;
 
@@ -84,7 +84,7 @@ void SinkWidget::executeVolumeUpdate()
     pa_operation_unref(o);
 }
 
-void SinkWidget::onMuteToggleButton()
+void OutputWidget::onMuteToggleButton()
 {
     DeviceWidget::onMuteToggleButton();
 
@@ -102,7 +102,7 @@ void SinkWidget::onMuteToggleButton()
     pa_operation_unref(o);
 }
 
-void SinkWidget::onDefaultToggleButton()
+void OutputWidget::onDefaultToggleButton()
 {
     pa_operation *o;
 
@@ -118,7 +118,7 @@ void SinkWidget::onDefaultToggleButton()
     pa_operation_unref(o);
 }
 
-void SinkWidget::onPortChange()
+void OutputWidget::onPortChange()
 {
     if (updating) {
         return;
@@ -139,7 +139,7 @@ void SinkWidget::onPortChange()
     }
 }
 
-void SinkWidget::setDigital(bool digital)
+void OutputWidget::setDigital(bool digital)
 {
     if (digital) {
         encodingSelect->show();
@@ -150,7 +150,7 @@ void SinkWidget::setDigital(bool digital)
     }
 }
 
-void SinkWidget::onEncodingsChange()
+void OutputWidget::onEncodingsChange()
 {
     pa_operation *o;
     uint8_t n_formats = 0;

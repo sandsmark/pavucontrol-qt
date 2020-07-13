@@ -115,7 +115,7 @@ void sink_cb(pa_context *c, const pa_sink_info *i, int eol, void *userdata)
         return;
     }
 
-    if (w->updateSink(*i)) {
+    if (w->updateOutputWidget(*i)) {
         ext_device_restore_subscribe_cb(c, PA_DEVICE_TYPE_SINK, i->index, w);
     }
 }
@@ -186,7 +186,7 @@ void source_output_cb(pa_context *, const pa_source_output_info *i, int eol, voi
                         w->m_notebook->setCurrentIndex(0);
                     } else if (!w->m_sourceOutputWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(1);
-                    } else if (!w->m_sourceWidgets.empty() && w->m_sinkWidgets.empty()) {
+                    } else if (!w->m_sourceWidgets.empty() && w->m_outputWidgets.empty()) {
                         w->m_notebook->setCurrentIndex(3);
                     } else {
                         w->m_notebook->setCurrentIndex(2);
@@ -363,7 +363,7 @@ void subscribe_cb(pa_context *c, pa_subscription_event_type_t t, uint32_t index,
     switch (t & PA_SUBSCRIPTION_EVENT_FACILITY_MASK) {
     case PA_SUBSCRIPTION_EVENT_SINK:
         if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
-            w->removeSink(index);
+            w->removeOutputWidget(index);
         } else {
             pa_operation *o;
 
