@@ -62,9 +62,6 @@ public:
     QToolButton *muteToggleButton;
     QToolButton *lockToggleButton;
 
-signals:
-    void requestBop(const QString &device);
-
 private :
     bool volumeMeterVisible;
 

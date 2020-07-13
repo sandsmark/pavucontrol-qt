@@ -84,12 +84,13 @@ public:
     RecordingType m_showRecordingType;
     InputDeviceType m_showInputDeviceType;
 
-protected Q_SLOTS:
-    virtual void onPlaybackTypeComboBoxChanged(int index);
-    virtual void onRecordingTypeComboBoxChanged(int index);
-    virtual void onOutputTypeComboBoxChanged(int index);
-    virtual void onInputDeviceTypeComboBoxChanged(int index);
-    virtual void onShowVolumeMetersCheckButtonToggled(bool toggled);
+private Q_SLOTS:
+    void onPlaybackTypeComboBoxChanged(int index);
+    void onRecordingTypeComboBoxChanged(int index);
+    void onOutputTypeComboBoxChanged(int index);
+    void onInputDeviceTypeComboBoxChanged(int index);
+    void onShowVolumeMetersCheckButtonToggled(bool toggled);
+    void onPlaybackBopRequested(const uint32_t outputIndex, const pa_volume_t volume);
 
 public:
     void setConnectionState(bool connected);

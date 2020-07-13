@@ -584,7 +584,6 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
         inputDeviceWidget = m_inputDeviceWidgets[info.index];
     } else {
         m_inputDeviceWidgets[info.index] = inputDeviceWidget = new InputDeviceWidget(this);
-        connect(inputDeviceWidget, &InputDeviceWidget::requestBop, m_popPlayer, &WavPlay::playSound);
 
         inputDeviceWidget->setChannelMap(info.channel_map, !!(info.flags & PA_SOURCE_DECIBEL_VOLUME));
         m_inputDevicesVBox->layout()->addWidget(inputDeviceWidget);
@@ -670,7 +669,7 @@ void MainWindow::updatePlaybackWidget(const pa_sink_input_info &info)
         }
     } else {
         m_playbackWidgets[info.index] = playbackWidget = new PlaybackWidget(this);
-        connect(playbackWidget, &PlaybackWidget::requestBop, m_popPlayer, &WavPlay::playSound);
+        connect(playbackWidget, &PlaybackWidget::requestBop, this, &MainWindow::onPlaybackBopRequested);
         playbackWidget->setChannelMap(info.channel_map, true);
         m_streamsVBox->layout()->addWidget(playbackWidget);
 
@@ -828,7 +827,7 @@ bool MainWindow::createEventRoleWidget()
     };
 
     m_eventRoleWidget = new RoleWidget(this);
-    connect(m_eventRoleWidget, &RoleWidget::requestBop, m_popPlayer, &WavPlay::playSound);
+//    connect(m_eventRoleWidget, &RoleWidget::requestBop, m_popPlayer, &WavPlay::playSound);
     m_streamsVBox->layout()->addWidget(m_eventRoleWidget);
     m_eventRoleWidget->role = "sink-input-by-media-role:event";
     m_eventRoleWidget->setChannelMap(cm, true);
@@ -1324,4 +1323,15 @@ void MainWindow::onShowVolumeMetersCheckButtonToggled(bool toggled)
 
         recordingWidget->setVolumeMeterVisible(state);
     }
+}
+
+void MainWindow::onPlaybackBopRequested(const uint32_t outputIndex, const pa_volume_t volume)
+{
+    if (m_outputWidgets.count(outputIndex) == 0) {
+        qWarning() << "Can't find output" << outputIndex;
+        return;
+    }
+
+    m_popPlayer->playSound(m_outputWidgets[outputIndex]->name, volume);
+    qDebug() << m_outputWidgets[outputIndex]->name;
 }

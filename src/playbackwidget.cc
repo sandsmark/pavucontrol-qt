@@ -111,6 +111,13 @@ void PlaybackWidget::executeVolumeUpdate()
     }
 
     pa_operation_unref(o);
+
+    pa_volume_t maxVolume = 0;
+    for (int i = 0; i < volume.channels; i++) {
+        maxVolume = std::max(maxVolume, volume.values[i]);
+    }
+
+    emit requestBop(mSinkIndex, maxVolume);
 }
 
 void PlaybackWidget::onMuteToggleButton()

@@ -52,6 +52,9 @@ public:
     void onDefaultToggleButton() override;
     void setDigital(bool);
 
+signals:
+    void requestBop(const QString &device, const pa_volume_t volume);
+
 protected Q_SLOTS:
     void onPortChange() override;
     void onEncodingsChange();

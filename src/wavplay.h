@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#include <pulse/volume.h>
+
 struct pa_context;
 struct pa_stream;
 struct pa_operation;
@@ -21,7 +23,7 @@ public:
     ~WavPlay();
 
 public slots:
-    void playSound(const QString &device);
+    void playSound(const QString &device, const pa_volume_t volume = PA_VOLUME_INVALID);
 
 private:
     void uploadSample();

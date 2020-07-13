@@ -40,10 +40,14 @@ public:
     uint32_t index, clientIndex;
     void setPlaybackIndex(uint32_t idx);
     uint32_t playbackIndex();
-    virtual void executeVolumeUpdate();
-    virtual void onMuteToggleButton();
-    virtual void onDeviceChangePopup();
-    virtual void onKill();
+
+    void executeVolumeUpdate() override;
+    void onMuteToggleButton() override;
+    void onDeviceChangePopup() override;
+    void onKill() override;
+
+signals:
+    void requestBop(const int outputIndex, const pa_volume_t volume);
 
 private:
     uint32_t mSinkIndex;

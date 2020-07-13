@@ -136,7 +136,7 @@ WavPlay::~WavPlay()
     }
 }
 
-void WavPlay::playSound(const QString &device)
+void WavPlay::playSound(const QString &device, const pa_volume_t volume)
 {
     if (!m_uploadComplete) {
         if (!m_uploadStream) {
@@ -149,7 +149,7 @@ void WavPlay::playSound(const QString &device)
     }
 
 
-    pa_operation *playingOperation = pa_context_play_sample(get_context(), m_name.constData(), device.toUtf8().constData(), PA_VOLUME_INVALID, &WavPlay::uploadStartedCallback, this);
+    pa_operation *playingOperation = pa_context_play_sample(get_context(), m_name.constData(), device.toUtf8().constData(), volume, &WavPlay::uploadStartedCallback, this);
     if (!playingOperation) {
         qWarning() << "Failed to play";
         return;
