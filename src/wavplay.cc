@@ -53,6 +53,7 @@ void WavPlay::stateCallback(pa_stream *s, void *userdata)
 }
 
 namespace {
+#pragma pack(push,1)
 struct WavHeader {
     // RIFF header
     uint32_t ChunkID;
@@ -71,6 +72,7 @@ struct WavHeader {
         MULaw = 0x7,
         DVIADPCM = 0x11,
         AAC = 0xff,
+        ExtendedWav = 0xfffe,
         WWISE = 0xffffu,
     };
 
@@ -85,7 +87,8 @@ struct WavHeader {
     uint32_t Subchunk2ID;
     uint32_t Subchunk2Size;
 };
-}
+#pragma pack(pop)
+}//namespace
 
 WavPlay::WavPlay(const QString &filename, QObject *parent) :
     QObject(parent)
