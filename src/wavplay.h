@@ -3,9 +3,12 @@
 #include <QByteArray>
 #include <QObject>
 
+#include <memory>
+
 struct pa_context;
 struct pa_stream;
 struct pa_operation;
+struct pa_sample_spec;
 
 class QString;
 
@@ -37,5 +40,6 @@ private:
 
     QByteArray m_name = "none";
     pa_operation *m_playingOperation = nullptr;
+    std::unique_ptr<pa_sample_spec> m_sampleSpec;
 };
 

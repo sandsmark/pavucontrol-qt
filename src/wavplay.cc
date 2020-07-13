@@ -107,24 +107,38 @@ WavPlay::WavPlay(const QString &filename, QObject *parent) :
     }
 
     WavHeader *header = reinterpret_cast<WavHeader*>(m_data.data());
-
     if (header->AudioFormat != WavHeader::PCM) {
         qWarning() << "Can only play PCM, got audio format" << header->AudioFormat;
-        qWarning() << header->Format;
-        qWarning() << header->NumChannels;
-        qWarning() << header->ChunkID;
         return;
     }
+    std::unique_ptr<pa_sample_spec> sampleSpec = std::make_unique<pa_sample_spec>();
 
-//    int audioFormat = 0;
-
-    if (header->BitsPerSample == 8) {
-    } else if (header->BitsPerSample == 16) {
-    } else if (header->BitsPerSample == 32) {
-    } else {
+    switch(header->BitsPerSample) {
+    case 8:
+        sampleSpec->format = PA_SAMPLE_U8;
+        break;
+    case 16:
+        sampleSpec->format = PA_SAMPLE_S16LE;
+        break;
+    case 32:
+        sampleSpec->format = PA_SAMPLE_S32LE;
+        break;
+    default:
         qWarning() << "Unsupported sample format" << header->BitsPerSample;
+        qWarning() << "Implement it if you want it";
         return;
     }
+
+    sampleSpec->rate = header->SampleRate;
+    sampleSpec->channels = header->NumChannels;
+
+    if(!pa_sample_spec_valid(sampleSpec.get())) {
+        qWarning() << "Invalid wav header";
+        return;
+    }
+
+    m_sampleSpec = std::move(sampleSpec);
+
     uploadSample();
 
 }
@@ -171,6 +185,9 @@ void WavPlay::uploadSample()
     if (m_uploadComplete) {
         return;
     }
+    if (!m_sampleSpec) {
+        return;
+    }
 
     if (!get_context()) {
         qWarning() << "Context not available";
@@ -182,41 +199,18 @@ void WavPlay::uploadSample()
         pa_stream_unref(m_uploadStream);
         m_uploadStream = nullptr;
     }
-    if (m_data.size() < sizeof(WavHeader)) {
-        qWarning() << "File invalid";
+
+    m_uploadStream = pa_stream_new(get_context(), m_name.constData(), m_sampleSpec.get(), nullptr);
+    if (!m_uploadStream) {
+        qWarning() << "pa_stream_new() failed: %s\n" << pa_strerror(pa_context_errno(get_context()));
         return;
     }
-
-    pa_sample_spec spec;
-    WavHeader *header = reinterpret_cast<WavHeader*>(m_data.data());
-    if (header->BitsPerSample == 8) {
-        spec.format = PA_SAMPLE_U8;
-    } else if (header->BitsPerSample == 16) {
-        spec.format = PA_SAMPLE_S16LE;
-    } else if (header->BitsPerSample == 32) {
-        spec.format = PA_SAMPLE_S32LE;
-    } else {
-        qWarning() << "Unsupported sample format" << header->BitsPerSample;
-        qWarning() << "Implement it if you want it";
-        return;
-    }
-    spec.rate = header->SampleRate;
-    spec.channels = header->NumChannels;
-
-    qDebug() << "CReating stream" << m_name;
-    m_uploadStream = pa_stream_new(get_context(), m_name.constData(), &spec, nullptr);
     pa_stream_set_state_callback(m_uploadStream, &WavPlay::stateCallback, this);
     pa_stream_set_write_callback(m_uploadStream, &WavPlay::requestCallback, this);
 
-    qDebug() << "Rate:" << spec.rate;
-    qDebug() << "Channels:" << spec.channels;
-    qDebug() << "Format:" << spec.format;
-    qDebug() << "Bytes:" << (m_data.length() - sizeof(WavHeader));
 
     m_position = sizeof(WavHeader);
-
-    qDebug() << "Stream connect";
-    if (pa_stream_connect_upload(m_uploadStream, m_data.length() - sizeof(WavHeader)) != 0) {
+    if (pa_stream_connect_upload(m_uploadStream, m_data.length() - m_position) != 0) {
         qWarning() << "pa_stream_connect_playback() failed: %s\n" << pa_strerror(pa_context_errno(get_context()));
     }
 }
