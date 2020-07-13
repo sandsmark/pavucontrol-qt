@@ -101,7 +101,7 @@ WavPlay::WavPlay(const QString &filename, QObject *parent) :
     m_name = QFileInfo(file).baseName().toUtf8();
 
     m_data = file.readAll(); // yolo
-    if (m_data.size() < sizeof(WavHeader)) {
+    if (size_t(m_data.size()) < sizeof(WavHeader)) {
         qWarning() << "Invalid wav header";
     }
 
@@ -240,13 +240,14 @@ void WavPlay::requestCallback(pa_stream *s, size_t maxLength, void *userdata)
     qDebug() << "Uploading" << length << "bytes";
 
     const uint8_t *data = reinterpret_cast<const uint8_t *>(that->m_data.constData() + that->m_position);
+
     if (pa_stream_write(s, data, length, nullptr, 0, PA_SEEK_RELATIVE) < 0) {
         fprintf(stderr, "pa_stream_write() failed: %s\n", pa_strerror(pa_context_errno(get_context())));
         return;
     }
 
     that->m_position += length;
-    if (that->m_position >= that->m_data.length()) {
+    if (that->m_position >= size_t(that->m_data.length())) {
         qDebug() << "Upload complete";
         pa_stream_finish_upload(s);
     }
