@@ -163,12 +163,6 @@ MainWindow::MainWindow(QWidget *parent):
 
     m_showVolumeMetersCheckButton->setChecked(config.value(QStringLiteral("window/showVolumeMeters"), true).toBool());
 
-    const QSize last_size  = config.value(QStringLiteral("window/size")).toSize();
-
-    if (last_size.isValid()) {
-        resize(last_size);
-    }
-
     const QVariant playbackTypeSelection = config.value(QStringLiteral("window/sinkInputType"));
 
     if (playbackTypeSelection.isValid()) {
@@ -196,12 +190,15 @@ MainWindow::MainWindow(QWidget *parent):
     /* Hide first and show when we're connected */
     m_notebook->hide();
     m_connectingLabel->show();
+
 }
 
 MainWindow::~MainWindow()
 {
     QSettings config;
-    config.setValue(QStringLiteral("window/size"), size());
+    if (m_connected) {
+        config.setValue(QStringLiteral("window/size"), size());
+    }
     config.setValue(QStringLiteral("window/sinkInputType"), m_playbackTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/sourceOutputType"), m_recordingTypeComboBox->currentIndex());
     config.setValue(QStringLiteral("window/sinkType"), m_outputTypeComboBox->currentIndex());
@@ -961,10 +958,19 @@ void MainWindow::setConnectionState(bool connected)
     }
     m_connected = connected;
 
+    QSettings config;
+
     if (m_connected) {
         m_connectingLabel->hide();
         m_notebook->show();
+        const QSize last_size  = config.value(QStringLiteral("window/size")).toSize();
+        if (last_size.isValid()) {
+            resize(last_size);
+        } else {
+            resize(1024, 768);
+        }
     } else {
+        config.setValue(QStringLiteral("window/size"), size());
         m_notebook->hide();
         m_connectingLabel->show();
     }
