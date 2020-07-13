@@ -22,7 +22,7 @@
 
 #include "mainwindow.h"
 #include "cardwidget.h"
-#include "sinkwidget.h"
+#include "outputwidget.h"
 #include "sourcewidget.h"
 #include "playbackwidget.h"
 #include "sourceoutputwidget.h"

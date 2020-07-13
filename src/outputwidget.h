@@ -18,8 +18,7 @@
   along with pavucontrol. If not, see <https://www.gnu.org/licenses/>.
 ***/
 
-#ifndef sinkwidget_h
-#define sinkwidget_h
+#pragma once
 
 #include "pavucontrol.h"
 #include "devicewidget.h"
@@ -57,5 +56,3 @@ protected Q_SLOTS:
     void onPortChange() override;
     void onEncodingsChange();
 };
-
-#endif

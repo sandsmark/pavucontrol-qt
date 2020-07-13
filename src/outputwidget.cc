@@ -18,7 +18,7 @@
   along with pavucontrol. If not, see <https://www.gnu.org/licenses/>.
 ***/
 
-#include "sinkwidget.h"
+#include "outputwidget.h"
 
 #include <pulse/format.h>
 #include <pulse/ext-device-restore.h>

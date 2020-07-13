@@ -21,7 +21,7 @@
 #include "playbackwidget.h"
 
 #include "mainwindow.h"
-#include "sinkwidget.h"
+#include "outputwidget.h"
 
 #include <QMenu>
 #include <QLabel>
