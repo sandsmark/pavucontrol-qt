@@ -528,7 +528,7 @@ static void read_callback(pa_stream *stream, size_t length, void *userdata)
     mainWindow->updateVolumeMeter(pa_stream_get_device_index(stream), pa_stream_get_monitor_stream(stream), qBound(0., value, 1.));
 }
 
-pa_stream *MainWindow::createMonitorStreamForSource(uint32_t source_idx, uint32_t stream_idx = -1, bool suspend = false)
+pa_stream *MainWindow::createMonitorStreamForSource(uint32_t source_idx, uint32_t stream_idx = -1)
 {
     pa_sample_spec sampleSpec;
     sampleSpec.channels = 1;
@@ -556,7 +556,9 @@ pa_stream *MainWindow::createMonitorStreamForSource(uint32_t source_idx, uint32_
 
     pa_stream_flags_t flags =
             pa_stream_flags_t(PA_STREAM_DONT_MOVE | PA_STREAM_PEAK_DETECT | PA_STREAM_ADJUST_LATENCY |
-                              (suspend ? PA_STREAM_DONT_INHIBIT_AUTO_SUSPEND : PA_STREAM_NOFLAGS) |
+                              PA_STREAM_DONT_INHIBIT_AUTO_SUSPEND |
+                              PA_STREAM_AUTO_TIMING_UPDATE |
+                              PA_STREAM_ADJUST_LATENCY |
                               (!m_showVolumeMetersCheckButton->isChecked() ? PA_STREAM_START_CORKED : PA_STREAM_NOFLAGS));
 
     const QByteArray sourceDevice = QByteArray::number(source_idx);
@@ -603,7 +605,7 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
         inputDeviceWidget->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
 
         if (pa_context_get_server_protocol_version(get_context()) >= 13) {
-            inputDeviceWidget->peak = createMonitorStreamForSource(info.index, -1, !!(info.flags & PA_SOURCE_NETWORK));
+            inputDeviceWidget->peak = createMonitorStreamForSource(info.index, -1);
         }
     }
 

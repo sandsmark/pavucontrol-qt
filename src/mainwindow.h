@@ -96,7 +96,7 @@ public:
     void setConnectionState(bool connected);
     void updateDeviceVisibility();
     void reallyUpdateDeviceVisibility();
-    pa_stream *createMonitorStreamForSource(uint32_t source_idx, uint32_t stream_idx, bool suspend);
+    pa_stream *createMonitorStreamForSource(uint32_t source_idx, uint32_t stream_idx);
     void createMonitorStreamForPlayback(PlaybackWidget *playbackWidget, uint32_t sink_idx);
 
     RoleWidget *m_eventRoleWidget = nullptr;
