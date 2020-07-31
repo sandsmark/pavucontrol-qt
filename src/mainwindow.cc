@@ -1125,8 +1125,6 @@ void MainWindow::reallyUpdateDeviceVisibility()
     } else {
         m_noInputDevicesLabel->hide();
     }
-
-    adjustSize();
 }
 
 void MainWindow::removeCard(uint32_t index)
