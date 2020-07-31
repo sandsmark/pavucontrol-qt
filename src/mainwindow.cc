@@ -220,6 +220,7 @@ static void updatePorts(DeviceWidget *w, std::map<QByteArray, PortInfo> *ports)
 
         PortInfo portInfo = it->second;
 
+        QString description = QString::fromLocal8Bit(portInfo.description);
         QString availability;
         if (portInfo.available == PA_PORT_AVAILABLE_YES) {
             availability = MainWindow::tr("plugged in");
@@ -232,8 +233,10 @@ static void updatePorts(DeviceWidget *w, std::map<QByteArray, PortInfo> *ports)
             }
         }
 
-        QString desc = QStringLiteral("%1 (%2)").arg(portInfo.description, availability);
-        port.second = desc.toUtf8();
+        if (!availability.isEmpty()) {
+            description = QStringLiteral("%1 (%2)").arg(description, availability);
+        }
+        port.second = description.toUtf8();
     }
 
     std::map<QByteArray, PortInfo>::iterator it = ports->find(w->activePort);
@@ -293,8 +296,8 @@ void MainWindow::updateCard(const pa_card_info &info)
 
     QVector<pa_card_profile_info2 *> profiles;
     for (uint32_t i=0; i<info.n_profiles; ++i) {
-        cardWidget->hasOutputs = cardWidget->hasOutputs || (info.profiles2[i]->n_sinks > 0);
-        cardWidget->hasSources = cardWidget->hasSources || (info.profiles2[i]->n_sources > 0);
+        cardWidget->hasOutputs = cardWidget->hasOutputs || (info.profiles2[i]->n_sinks > 1);
+        cardWidget->hasSources = cardWidget->hasSources || (info.profiles2[i]->n_sources > 1);
         profiles.append(info.profiles2[i]);
     }
 
@@ -440,27 +443,35 @@ bool MainWindow::updateOutputWidget(const pa_sink_info &info)
 
     outputWidget->setDefault(outputWidget->name == m_defaultSinkName);
 
+    outputWidget->ports.clear();
+
     QVector<pa_sink_port_info> ports;
+    outputWidget->anyAvailablePorts = info.n_ports == 0; // if no ports, assume it is available
     for (uint32_t i = 0; i < info.n_ports; ++i) {
         ports.append(*info.ports[i]);
-    }
-    std::sort(ports.begin(), ports.end(), [](const pa_sink_port_info &lhs, const pa_sink_port_info &rhs) {
-        if (lhs.priority == rhs.priority) {
-            return strcmp(lhs.name, rhs.name) > 0;
+        if (ports[i].available != PA_PORT_AVAILABLE_NO) { // it has an UNKNOWN as well
+            outputWidget->anyAvailablePorts = true;
         }
-        return lhs.priority > rhs.priority;
-    });
-
-    outputWidget->ports.clear();
-    for (const pa_sink_port_info &port_priority : ports) {
-        outputWidget->ports.push_back(std::pair<QByteArray, QByteArray>(port_priority.name, port_priority.description));
     }
 
-    outputWidget->activePort = info.active_port ? info.active_port->name : "";
+    if (info.n_ports > 0) {
+        std::sort(ports.begin(), ports.end(), [](const pa_sink_port_info &lhs, const pa_sink_port_info &rhs) {
+            if (lhs.priority == rhs.priority) {
+                return strcmp(lhs.name, rhs.name) > 0;
+            }
+            return lhs.priority > rhs.priority;
+        });
 
-    std::map<uint32_t, CardWidget *>::iterator cw = m_cardWidgets.find(info.card);
-    if (cw != m_cardWidgets.end()) {
-        updatePorts(outputWidget, &cw->second->ports);
+        for (const pa_sink_port_info &port_priority : ports) {
+            outputWidget->ports.push_back(std::pair<QByteArray, QByteArray>(port_priority.name, port_priority.description));
+        }
+
+        outputWidget->activePort = info.active_port ? info.active_port->name : "";
+
+        std::map<uint32_t, CardWidget *>::iterator cw = m_cardWidgets.find(info.card);
+        if (cw != m_cardWidgets.end()) {
+            updatePorts(outputWidget, &cw->second->ports);
+        }
     }
 
 #ifdef PA_SINK_SET_FORMATS
@@ -619,23 +630,33 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
         ports.append(*info.ports[i]);
     }
 
-    std::sort(ports.begin(), ports.end(), [](const pa_source_port_info &lhs, const pa_source_port_info &rhs) {
-        if (lhs.priority == rhs.priority) {
-            return strcmp(lhs.name, rhs.name) > 0;
+    inputDeviceWidget->anyAvailablePorts = info.n_ports == 0; // if no ports, assume it is available
+    for (uint32_t i = 0; i < info.n_ports; ++i) {
+        ports.append(*info.ports[i]);
+        if (ports[i].available == PA_PORT_AVAILABLE_YES) {
+            inputDeviceWidget->anyAvailablePorts = true;
         }
-        return lhs.priority > rhs.priority;
-    });
-
-    inputDeviceWidget->ports.clear();
-    for (const pa_source_port_info &port_priority : ports) {
-        inputDeviceWidget->ports.push_back(std::pair<QByteArray, QByteArray>(port_priority.name, port_priority.description));
     }
 
-    inputDeviceWidget->activePort = info.active_port ? info.active_port->name : "";
+    if (info.n_ports > 0) {
+        std::sort(ports.begin(), ports.end(), [](const pa_source_port_info &lhs, const pa_source_port_info &rhs) {
+            if (lhs.priority == rhs.priority) {
+                return strcmp(lhs.name, rhs.name) > 0;
+            }
+            return lhs.priority > rhs.priority;
+        });
 
-    std::map<uint32_t, CardWidget *>::iterator cardWidget = m_cardWidgets.find(info.card);
-    if (cardWidget != m_cardWidgets.end()) {
-        updatePorts(inputDeviceWidget, &cardWidget->second->ports);
+        inputDeviceWidget->ports.clear();
+        for (const pa_source_port_info &port_priority : ports) {
+            inputDeviceWidget->ports.push_back(std::pair<QByteArray, QByteArray>(port_priority.name, port_priority.description));
+        }
+
+        inputDeviceWidget->activePort = info.active_port ? info.active_port->name : "";
+
+        std::map<uint32_t, CardWidget *>::iterator cardWidget = m_cardWidgets.find(info.card);
+        if (cardWidget != m_cardWidgets.end()) {
+            updatePorts(inputDeviceWidget, &cardWidget->second->ports);
+        }
     }
 
     inputDeviceWidget->prepareMenu();
@@ -1056,7 +1077,7 @@ void MainWindow::reallyUpdateDeviceVisibility()
     for (const std::pair<const uint32_t, OutputWidget*> &sw : m_outputWidgets) {
         OutputWidget *outputWidget = sw.second;
 
-        if (m_showOutputType == OUTPUT_ALL || outputWidget->type == m_showOutputType) {
+        if (outputWidget->anyAvailablePorts && (m_showOutputType == OUTPUT_ALL || outputWidget->type == m_showOutputType)) {
             outputWidget->show();
             is_empty = false;
         } else {
@@ -1088,9 +1109,10 @@ void MainWindow::reallyUpdateDeviceVisibility()
     for (const std::pair<const uint32_t, InputDeviceWidget*> &sw : m_inputDeviceWidgets) {
         InputDeviceWidget *inputDeviceWidget = sw.second;
 
-        if (m_showInputDeviceType == INPUT_DEVICE_ALL ||
+        if (inputDeviceWidget->anyAvailablePorts &&
+                (m_showInputDeviceType == INPUT_DEVICE_ALL ||
                 inputDeviceWidget->type == m_showInputDeviceType ||
-                (m_showInputDeviceType == INPUT_DEVICE_NO_MONITOR && inputDeviceWidget->type != INPUT_DEVICE_MONITOR)) {
+                (m_showInputDeviceType == INPUT_DEVICE_NO_MONITOR && inputDeviceWidget->type != INPUT_DEVICE_MONITOR))) {
             inputDeviceWidget->show();
             is_empty = false;
         } else {

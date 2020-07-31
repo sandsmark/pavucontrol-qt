@@ -85,6 +85,8 @@ public:
     QCheckBox *advancedOptions;
     QComboBox *portList;
 
+    bool anyAvailablePorts = false;
+
     // TODO, this is just 1-1 from the .ui, can do smarter
     QCheckBox *encodingFormatPCM;
     QCheckBox *encodingFormatAC3;
