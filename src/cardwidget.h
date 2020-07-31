@@ -55,8 +55,8 @@ public:
     QByteArray activeProfile;
     QByteArray noInOutProfile;
     QByteArray lastActiveProfile;
-    bool hasOutputs;
-    bool hasSources;
+    bool hasOutputs = false;
+    bool hasSources = false;
 
     QLabel *iconImage;
     QLabel *nameLabel;

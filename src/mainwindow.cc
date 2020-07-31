@@ -604,7 +604,7 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
     inputDeviceWidget->type = info.monitor_of_sink != PA_INVALID_INDEX ? INPUT_DEVICE_MONITOR : (info.flags & PA_SOURCE_HARDWARE ? INPUT_DEVICE_HARDWARE : INPUT_DEVICE_VIRTUAL);
 
     inputDeviceWidget->boldNameLabel->setText(QLatin1String(""));
-    inputDeviceWidget->nameLabel->setText(QString::asprintf("%s", info.description).toHtmlEscaped() + " [source widget]");
+    inputDeviceWidget->nameLabel->setText(QString::asprintf("%s", info.description).toHtmlEscaped());
     inputDeviceWidget->nameLabel->setToolTip(QString::fromUtf8(info.description));
 
     inputDeviceWidget->iconImage->setPixmap(utils::findIcon(info, "audio-input-microphone").pixmap(iconSize()));
@@ -743,7 +743,7 @@ void MainWindow::updateRecordingWidget(const pa_source_output_info &info)
 
     if (m_clientNames.contains(info.client)) {
         recordingWidget->boldNameLabel->setText(QStringLiteral("<b>%1</b> source output client").arg(m_clientNames[info.client]));
-        recordingWidget->nameLabel->setText(QString::asprintf(": %s", info.name).toHtmlEscaped() + "[source output]");
+        recordingWidget->nameLabel->setText(QString::asprintf(": %s", info.name).toHtmlEscaped());
     } else {
         recordingWidget->boldNameLabel->clear();
         recordingWidget->nameLabel->setText(QString::fromUtf8(info.name));
