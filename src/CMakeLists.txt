@@ -16,6 +16,7 @@ set(pavucontrol-qt_HDRS
     inputdevicewidget.h
     streamwidget.h
     wavplay.h
+    elidinglabel.h
 )
 
 set(pavucontrol-qt_SRCS
@@ -32,6 +33,7 @@ set(pavucontrol-qt_SRCS
     inputdevicewidget.cc
     streamwidget.cc
     wavplay.cc
+    elidinglabel.cc
 )
 
 add_executable(pavucontrol-qt

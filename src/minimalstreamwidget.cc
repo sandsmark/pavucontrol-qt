@@ -19,6 +19,7 @@
 ***/
 
 #include "minimalstreamwidget.h"
+#include "elidinglabel.h"
 
 #include <QGridLayout>
 #include <QProgressBar>
@@ -50,7 +51,7 @@ MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
     boldNameLabel = new QLabel;
     topLayout->addWidget(boldNameLabel);
 
-    nameLabel = new QLabel(tr("Device Title"));
+    nameLabel = new ElidingLabel(tr("Device Title"));
     topLayout->addWidget(nameLabel);
 
     topLayout->addStretch();
@@ -73,7 +74,6 @@ MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
 
     peakProgressBar = new QProgressBar;
     peakProgressBar->setTextVisible(false);
-    peakProgressBar->setMaximumHeight(4 /* FIXME: hardcoded */);
     peakProgressBar->hide();
 }
 
