@@ -631,6 +631,8 @@ void context_state_callback(pa_context *c, void *userdata)
             } else {
                 qDebug(QObject::tr("Failed to load device manager extension: %s").toUtf8().constData(), pa_strerror(pa_context_errno(context)));
             }
+        } else {
+            pa_operation_unref(operation);
         }
 
 
@@ -692,7 +694,7 @@ void connect_to_pulse(MainWindow *w)
             w->setConnectingMessage(QObject::tr("Connection to PulseAudio failed. Automatic retry in 5s\n\n"
                                                 "In this case this is likely because PULSE_SERVER in the Environment/X11 Root Window Properties\n"
                                                 "or default-server in client.conf is misconfigured.\n"
-                                                "This situation can also arrise when PulseAudio crashed and left stale details in the X11 Root Window.\n"
+                                                "This situation can also arise when PulseAudio crashed and left stale details in the X11 Root Window.\n"
                                                 "If this is the case, then PulseAudio should autospawn again, or if this is not configured you should\n"
                                                 "run start-pulseaudio-x11 manually.").toUtf8().constData());
             reconnect_timeout = 5;
