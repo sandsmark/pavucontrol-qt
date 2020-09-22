@@ -635,7 +635,7 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
     inputDeviceWidget->anyAvailablePorts = info.n_ports == 0; // if no ports, assume it is available
     for (uint32_t i = 0; i < info.n_ports; ++i) {
         ports.append(*info.ports[i]);
-        if (ports[i].available == PA_PORT_AVAILABLE_YES) {
+        if (ports[i].available != PA_PORT_AVAILABLE_NO) {
             inputDeviceWidget->anyAvailablePorts = true;
         }
     }
