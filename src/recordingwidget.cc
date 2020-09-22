@@ -144,8 +144,8 @@ void RecordingWidget::onKill()
 
 void RecordingWidget::buildMenu()
 {
-    for (const std::pair<const uint32_t, InputDeviceWidget*> &sourceWidget : mpMainWindow->m_inputDeviceWidgets) {
-        menu->addAction(new RecordingMenuItem{this, sourceWidget.second->description.constData(), sourceWidget.second->index, sourceWidget.second->index == mSourceIndex, menu});
+    for (InputDeviceWidget *sourceWidget : mpMainWindow->m_inputDeviceWidgets) {
+        menu->addAction(new RecordingMenuItem{this, sourceWidget->description.constData(), sourceWidget->index, sourceWidget->index == mSourceIndex, menu});
     }
 }
 

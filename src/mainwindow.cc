@@ -209,16 +209,13 @@ MainWindow::~MainWindow()
 }
 
 class DeviceWidget;
-static void updatePorts(DeviceWidget *w, std::map<QByteArray, PortInfo> *ports)
+static void updatePorts(DeviceWidget *w, QHash<QByteArray, PortInfo> *ports)
 {
-
     for (std::pair<QByteArray, QByteArray> &port : w->ports) {
-        std::map<QByteArray, PortInfo>::iterator it = ports->find(port.first);
-        if (it == ports->end()) {
+        if (!ports->contains(port.first)) {
             continue;
         }
-
-        PortInfo portInfo = it->second;
+        PortInfo portInfo = ports->value(port.first);
 
         QString description = QString::fromLocal8Bit(portInfo.description);
         QString availability;
@@ -239,10 +236,8 @@ static void updatePorts(DeviceWidget *w, std::map<QByteArray, PortInfo> *ports)
         port.second = description.toUtf8();
     }
 
-    std::map<QByteArray, PortInfo>::iterator it = ports->find(w->activePort);
-
-    if (it != ports->end()) {
-        w->setLatencyOffset(it->second.latency_offset);
+    if (ports->contains(w->activePort)) {
+        w->setLatencyOffset(ports->value(w->activePort).latency_offset);
     }
 }
 
@@ -332,12 +327,9 @@ void MainWindow::updateCard(const pa_card_info &info)
 
     for (pa_card_profile_info2 *p_profile : profiles) {
         bool hasNo = false, hasOther = false;
-        std::map<QByteArray, PortInfo>::iterator portIt;
         QByteArray desc = p_profile->description;
 
-        for (portIt = cardWidget->ports.begin(); portIt != cardWidget->ports.end(); portIt++) {
-            PortInfo port = portIt->second;
-
+        for (const PortInfo &port : cardWidget->ports) {
             if (std::find(port.profiles.begin(), port.profiles.end(), p_profile->name) == port.profiles.end()) {
                 continue;
             }
@@ -358,7 +350,7 @@ void MainWindow::updateCard(const pa_card_info &info)
             desc += tr(" (unavailable)").toUtf8().constData();
         }
 
-        cardWidget->profiles.push_back(std::pair<QByteArray, QByteArray>(p_profile->name, desc));
+        cardWidget->profiles.push_back({p_profile->name, desc});
 
         if (p_profile->n_sinks == 0 && p_profile->n_sources == 0) {
             cardWidget->noInOutProfile = p_profile->name;
@@ -370,11 +362,7 @@ void MainWindow::updateCard(const pa_card_info &info)
     /* Because the port info for sinks and sources is discontinued we need
      * to update the port info for them here. */
     if (cardWidget->hasOutputs) {
-        std::map<uint32_t, OutputWidget *>::iterator it;
-
-        for (it = m_outputWidgets.begin() ; it != m_outputWidgets.end(); it++) {
-            OutputWidget *sw = it->second;
-
+        for (OutputWidget *sw : m_outputWidgets) {
             if (sw->card_index == cardWidget->index) {
                 sw->updating = true;
                 updatePorts(sw, &cardWidget->ports);
@@ -384,11 +372,7 @@ void MainWindow::updateCard(const pa_card_info &info)
     }
 
     if (cardWidget->hasSources) {
-        std::map<uint32_t, InputDeviceWidget *>::iterator it;
-
-        for (it = m_inputDeviceWidgets.begin() ; it != m_inputDeviceWidgets.end(); it++) {
-            InputDeviceWidget *sw = it->second;
-
+        for (InputDeviceWidget *sw : m_inputDeviceWidgets) {
             if (sw->card_index == cardWidget->index) {
                 sw->updating = true;
                 updatePorts(sw, &cardWidget->ports);
@@ -463,14 +447,14 @@ bool MainWindow::updateOutputWidget(const pa_sink_info &info)
         });
 
         for (const pa_sink_port_info &port_priority : ports) {
-            outputWidget->ports.push_back(std::pair<QByteArray, QByteArray>(port_priority.name, port_priority.description));
+            outputWidget->ports.push_back({port_priority.name, port_priority.description});
         }
 
         outputWidget->activePort = info.active_port ? info.active_port->name : "";
 
-        std::map<uint32_t, CardWidget *>::iterator cw = m_cardWidgets.find(info.card);
-        if (cw != m_cardWidgets.end()) {
-            updatePorts(outputWidget, &cw->second->ports);
+        CardWidget *cw = m_cardWidgets.value(info.card);
+        if (cw) {
+            updatePorts(outputWidget, &cw->ports);
         }
     }
 
@@ -650,14 +634,14 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
 
         inputDeviceWidget->ports.clear();
         for (const pa_source_port_info &port_priority : ports) {
-            inputDeviceWidget->ports.push_back(std::pair<QByteArray, QByteArray>(port_priority.name, port_priority.description));
+            inputDeviceWidget->ports.push_back({port_priority.name, port_priority.description});
         }
 
         inputDeviceWidget->activePort = info.active_port ? info.active_port->name : "";
 
-        std::map<uint32_t, CardWidget *>::iterator cardWidget = m_cardWidgets.find(info.card);
-        if (cardWidget != m_cardWidgets.end()) {
-            updatePorts(inputDeviceWidget, &cardWidget->second->ports);
+        CardWidget *cardWidget = m_cardWidgets.value(info.card);
+        if (cardWidget) {
+            updatePorts(inputDeviceWidget, &cardWidget->ports);
         }
     }
 
@@ -790,9 +774,7 @@ void MainWindow::updateClient(const pa_client_info &info)
 {
     m_clientNames[info.index] = QString::fromUtf8(info.name).toHtmlEscaped();
 
-    for (const std::pair<const uint32_t, PlaybackWidget*> &playbackWidget : m_playbackWidgets) {
-        PlaybackWidget *w = playbackWidget.second;
-
+    for (PlaybackWidget *w : m_playbackWidgets) {
         if (!w) {
             continue;
         }
@@ -808,24 +790,22 @@ void MainWindow::updateServer(const pa_server_info &info)
     m_defaultSourceName = info.default_source_name ? info.default_source_name : "";
     m_defaultSinkName = info.default_sink_name ? info.default_sink_name : "";
 
-    for (const std::pair<const uint32_t, OutputWidget*> &outputWidget : m_outputWidgets) {
-        if (!outputWidget.second) {
+    for (OutputWidget *outputWidget : m_outputWidgets) {
+        if (!outputWidget) {
             continue;
         }
 
-        outputWidget.second->updating = true;
-        if (outputWidget.second->name == m_defaultSinkName) {
-            outputWidget.second->setDefault(true);
+        outputWidget->updating = true;
+        if (outputWidget->name == m_defaultSinkName) {
+            outputWidget->setDefault(true);
         } else {
-            outputWidget.second->setDefault(false);
+            outputWidget->setDefault(false);
         }
 
-        outputWidget.second->updating = false;
+        outputWidget->updating = false;
     }
 
-    for (const std::pair<const uint32_t, InputDeviceWidget*> &inputDeviceWidget : m_inputDeviceWidgets) {
-        InputDeviceWidget *w = inputDeviceWidget.second;
-
+    for (InputDeviceWidget *w : m_inputDeviceWidgets) {
         if (!w) {
             continue;
         }
@@ -954,21 +934,21 @@ void MainWindow::updateVolumeMeter(uint32_t source_index, uint32_t sink_input_id
             playbackWidget->updatePeak(v);
         }
     } else {
-        for (const std::pair<const uint32_t, OutputWidget*> &outputWidget : m_outputWidgets) {
-            if (outputWidget.second->monitor_index == source_index) {
-                outputWidget.second->updatePeak(v);
+        for (OutputWidget *outputWidget : m_outputWidgets) {
+            if (outputWidget->monitor_index == source_index) {
+                outputWidget->updatePeak(v);
             }
         }
 
-        for (const std::pair<const uint32_t, InputDeviceWidget*> &inputDeviceWidget : m_inputDeviceWidgets) {
-            if (inputDeviceWidget.second->index == source_index) {
-                inputDeviceWidget.second->updatePeak(v);
+        for (InputDeviceWidget *inputDeviceWidget : m_inputDeviceWidgets) {
+            if (inputDeviceWidget->index == source_index) {
+                inputDeviceWidget->updatePeak(v);
             }
         }
 
-        for (const std::pair<const uint32_t, RecordingWidget*> &recordingWidget : m_recordingWidgets) {
-            if (recordingWidget.second->sourceIndex() == source_index) {
-                recordingWidget.second->updatePeak(v);
+        for (RecordingWidget *recordingWidget : m_recordingWidgets) {
+            if (recordingWidget->sourceIndex() == source_index) {
+                recordingWidget->updatePeak(v);
             }
         }
     }
@@ -1018,9 +998,7 @@ void MainWindow::reallyUpdateDeviceVisibility()
 
     bool is_empty = true;
 
-    for (const std::pair<const uint32_t, PlaybackWidget*> &siw : m_playbackWidgets) {
-        PlaybackWidget *playbackWidget = siw.second;
-
+    for (PlaybackWidget *playbackWidget : m_playbackWidgets) {
         if (m_outputWidgets.size() > 1) {
             playbackWidget->directionLabel->show();
             playbackWidget->deviceButton->show();
@@ -1049,9 +1027,7 @@ void MainWindow::reallyUpdateDeviceVisibility()
 
     is_empty = true;
 
-    for (const std::pair<const uint32_t, RecordingWidget*> &sow : m_recordingWidgets) {
-        RecordingWidget *recordingWidget = sow.second;
-
+    for (RecordingWidget *recordingWidget : m_recordingWidgets) {
         if (m_inputDeviceWidgets.size() > 1) {
             recordingWidget->directionLabel->show();
             recordingWidget->deviceButton->show();
@@ -1076,9 +1052,7 @@ void MainWindow::reallyUpdateDeviceVisibility()
 
     is_empty = true;
 
-    for (const std::pair<const uint32_t, OutputWidget*> &sw : m_outputWidgets) {
-        OutputWidget *outputWidget = sw.second;
-
+    for (OutputWidget *outputWidget : m_outputWidgets) {
         if (outputWidget->anyAvailablePorts && (m_showOutputType == OUTPUT_ALL || outputWidget->type == m_showOutputType)) {
             outputWidget->show();
             is_empty = false;
@@ -1095,8 +1069,8 @@ void MainWindow::reallyUpdateDeviceVisibility()
 
     is_empty = true;
 
-    for (const std::pair<const uint32_t, CardWidget*> &cardWidget : m_cardWidgets) {
-        cardWidget.second->show();
+    for (CardWidget *cardWidget : m_cardWidgets) {
+        cardWidget->show();
         is_empty = false;
     }
 
@@ -1108,9 +1082,7 @@ void MainWindow::reallyUpdateDeviceVisibility()
 
     is_empty = true;
 
-    for (const std::pair<const uint32_t, InputDeviceWidget*> &sw : m_inputDeviceWidgets) {
-        InputDeviceWidget *inputDeviceWidget = sw.second;
-
+    for (InputDeviceWidget *inputDeviceWidget : m_inputDeviceWidgets) {
         if (inputDeviceWidget->anyAvailablePorts &&
                 (m_showInputDeviceType == INPUT_DEVICE_ALL ||
                 inputDeviceWidget->type == m_showInputDeviceType ||
@@ -1135,8 +1107,7 @@ void MainWindow::removeCard(uint32_t index)
         return;
     }
 
-    delete m_cardWidgets[index];
-    m_cardWidgets.erase(index);
+    delete m_cardWidgets.take(index);
     updateDeviceVisibility();
 }
 
@@ -1146,8 +1117,7 @@ void MainWindow::removeOutputWidget(uint32_t index)
         return;
     }
 
-    delete m_outputWidgets[index];
-    m_outputWidgets.erase(index);
+    delete m_outputWidgets.take(index);
     updateDeviceVisibility();
 }
 
@@ -1157,8 +1127,7 @@ void MainWindow::removeInputDevice(uint32_t index)
         return;
     }
 
-    delete m_inputDeviceWidgets[index];
-    m_inputDeviceWidgets.erase(index);
+    delete m_inputDeviceWidgets.take(index);
     updateDeviceVisibility();
 }
 
@@ -1168,8 +1137,7 @@ void MainWindow::removePlaybackWidget(uint32_t index)
         return;
     }
 
-    delete m_playbackWidgets[index];
-    m_playbackWidgets.erase(index);
+    delete m_playbackWidgets.take(index);
     updateDeviceVisibility();
 }
 
@@ -1179,8 +1147,7 @@ void MainWindow::removeRecordingWidget(uint32_t index)
         return;
     }
 
-    delete m_recordingWidgets[index];
-    m_recordingWidgets.erase(index);
+    delete m_recordingWidgets.take(index);
     updateDeviceVisibility();
 }
 
@@ -1191,28 +1158,28 @@ void MainWindow::removeClient(uint32_t index)
 
 void MainWindow::removeAllWidgets()
 {
-    for (const std::pair<const uint32_t, PlaybackWidget*> &playbackWidget : m_playbackWidgets) {
-        playbackWidget.second->deleteLater();
+    for (PlaybackWidget *playbackWidget : m_playbackWidgets) {
+        playbackWidget->deleteLater();
     }
     m_playbackWidgets.clear();
 
-    for (const std::pair<const uint32_t, RecordingWidget*> &recordingWidget : m_recordingWidgets) {
-        recordingWidget.second->deleteLater();
+    for (RecordingWidget *recordingWidget : m_recordingWidgets) {
+        recordingWidget->deleteLater();
     }
     m_recordingWidgets.clear();
 
-    for (const std::pair<const uint32_t, OutputWidget*> &outputWidget : m_outputWidgets) {
-        outputWidget.second->deleteLater();
+    for (OutputWidget *outputWidget : m_outputWidgets) {
+        outputWidget->deleteLater();
     }
     m_outputWidgets.clear();
 
-    for (const std::pair<const uint32_t, InputDeviceWidget*> &inputDeviceWidget : m_inputDeviceWidgets) {
-        inputDeviceWidget.second->deleteLater();
+    for (InputDeviceWidget *inputDeviceWidget : m_inputDeviceWidgets) {
+        inputDeviceWidget->deleteLater();
     }
     m_inputDeviceWidgets.clear();
 
-    for (const std::pair<const uint32_t, CardWidget*> &cardWidget : m_cardWidgets) {
-        cardWidget.second->deleteLater();
+    for (CardWidget *cardWidget : m_cardWidgets) {
+        cardWidget->deleteLater();
     }
     m_cardWidgets.clear();
 
@@ -1296,9 +1263,7 @@ void MainWindow::onShowVolumeMetersCheckButtonToggled(bool toggled)
     bool state = m_showVolumeMetersCheckButton->isChecked();
     pa_operation *operation = nullptr;
 
-    for (const std::pair<const uint32_t, OutputWidget*> &sw : m_outputWidgets) {
-        OutputWidget *outputWidget = sw.second;
-
+    for (OutputWidget *outputWidget : m_outputWidgets) {
         if (outputWidget->peak) {
             operation = pa_stream_cork(outputWidget->peak, (int)!state, nullptr, nullptr);
 
@@ -1310,9 +1275,7 @@ void MainWindow::onShowVolumeMetersCheckButtonToggled(bool toggled)
         outputWidget->setVolumeMeterVisible(state);
     }
 
-    for (const std::pair<const uint32_t, InputDeviceWidget*> &sw : m_inputDeviceWidgets) {
-        InputDeviceWidget *inputDeviceWidget = sw.second;
-
+    for (InputDeviceWidget *inputDeviceWidget : m_inputDeviceWidgets) {
         if (inputDeviceWidget->peak) {
             operation = pa_stream_cork(inputDeviceWidget->peak, (int)!state, nullptr, nullptr);
 
@@ -1324,9 +1287,7 @@ void MainWindow::onShowVolumeMetersCheckButtonToggled(bool toggled)
         inputDeviceWidget->setVolumeMeterVisible(state);
     }
 
-    for (const std::pair<const uint32_t, PlaybackWidget*> &siw : m_playbackWidgets) {
-        PlaybackWidget *playbackWidget = siw.second;
-
+    for (PlaybackWidget *playbackWidget : m_playbackWidgets) {
         if (playbackWidget->peak) {
             operation = pa_stream_cork(playbackWidget->peak, (int)!state, nullptr, nullptr);
 
@@ -1338,9 +1299,7 @@ void MainWindow::onShowVolumeMetersCheckButtonToggled(bool toggled)
         playbackWidget->setVolumeMeterVisible(state);
     }
 
-    for (const std::pair<const uint32_t, RecordingWidget*> &sow : m_recordingWidgets) {
-        RecordingWidget *recordingWidget = sow.second;
-
+    for (RecordingWidget *recordingWidget : m_recordingWidgets) {
         if (recordingWidget->peak) {
             operation = pa_stream_cork(recordingWidget->peak, (int)!state, nullptr, nullptr);
 

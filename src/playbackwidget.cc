@@ -152,8 +152,8 @@ void PlaybackWidget::onKill()
 
 void PlaybackWidget::buildMenu()
 {
-    for (const std::pair<const uint32_t, OutputWidget*> &sinkWidget : mpMainWindow->m_outputWidgets) {
-        menu->addAction(new SinkMenuItem{this, sinkWidget.second->description.constData(), sinkWidget.second->index, sinkWidget.second->index == mSinkIndex, menu});
+    for (OutputWidget *sinkWidget : mpMainWindow->m_outputWidgets) {
+        menu->addAction(new SinkMenuItem{this, sinkWidget->description.constData(), sinkWidget->index, sinkWidget->index == mSinkIndex, menu});
     }
 }
 

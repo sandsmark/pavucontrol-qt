@@ -72,11 +72,11 @@ public:
 
     void setConnectingMessage(const char *string = nullptr);
 
-    std::map<uint32_t, CardWidget *> m_cardWidgets;
-    std::map<uint32_t, OutputWidget *> m_outputWidgets;
-    std::map<uint32_t, InputDeviceWidget *> m_inputDeviceWidgets;
-    std::map<uint32_t, PlaybackWidget *> m_playbackWidgets;
-    std::map<uint32_t, RecordingWidget *> m_recordingWidgets;
+    QHash<uint32_t, CardWidget *> m_cardWidgets;
+    QHash<uint32_t, OutputWidget *> m_outputWidgets;
+    QHash<uint32_t, InputDeviceWidget *> m_inputDeviceWidgets;
+    QHash<uint32_t, PlaybackWidget *> m_playbackWidgets;
+    QHash<uint32_t, RecordingWidget *> m_recordingWidgets;
 
     QMap<int, QString> m_clientNames;
     PlaybackType m_showPlaybackType;

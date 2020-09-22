@@ -51,7 +51,7 @@ public:
     bool updating;
 
     std::vector< std::pair<QByteArray, QByteArray>> profiles;
-    std::map<QByteArray, PortInfo> ports;
+    QHash<QByteArray, PortInfo> ports;
     QByteArray activeProfile;
     QByteArray noInOutProfile;
     QByteArray lastActiveProfile;
