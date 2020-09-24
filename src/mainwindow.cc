@@ -326,7 +326,7 @@ void MainWindow::updateCard(const pa_card_info &info)
     });
 
     for (pa_card_profile_info2 *p_profile : profiles) {
-        bool hasNo = false, hasOther = false;
+        bool hasUnavailable = false, hasOther = false;
         QByteArray desc = p_profile->description;
 
         for (const PortInfo &port : cardWidget->ports) {
@@ -335,14 +335,14 @@ void MainWindow::updateCard(const pa_card_info &info)
             }
 
             if (port.available == PA_PORT_AVAILABLE_NO) {
-                hasNo = true;
+                hasUnavailable = true;
             } else {
                 hasOther = true;
                 break;
             }
         }
 
-        if (hasNo && !hasOther) {
+        if (hasUnavailable && !hasOther) {
             desc += tr(" (unplugged)").toUtf8().constData();
         }
 
@@ -612,10 +612,6 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
     inputDeviceWidget->setDefault(inputDeviceWidget->name == m_defaultSourceName);
 
     QVector<pa_source_port_info> ports;
-    for (uint32_t i = 0; i < info.n_ports; ++i) {
-        ports.append(*info.ports[i]);
-    }
-
     inputDeviceWidget->anyAvailablePorts = info.n_ports == 0; // if no ports, assume it is available
     for (uint32_t i = 0; i < info.n_ports; ++i) {
         ports.append(*info.ports[i]);
