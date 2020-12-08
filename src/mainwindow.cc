@@ -604,7 +604,11 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
     inputDeviceWidget->nameLabel->setText(QString::asprintf("%s", info.description).toHtmlEscaped());
     inputDeviceWidget->nameLabel->setToolTip(QString::fromUtf8(info.description));
 
-    inputDeviceWidget->iconImage->setPixmap(utils::findIcon(info, "audio-input-microphone").pixmap(iconSize()));
+    if (inputDeviceWidget->type == INPUT_DEVICE_MONITOR) {
+        inputDeviceWidget->iconImage->setPixmap(utils::deviceIcon(info).pixmap(iconSize()));
+    } else {
+        inputDeviceWidget->iconImage->setPixmap(utils::findIcon(info, "audio-input-microphone").pixmap(iconSize()));
+    }
 
     inputDeviceWidget->setVolume(info.volume);
     inputDeviceWidget->muteToggleButton->setChecked(info.mute);
