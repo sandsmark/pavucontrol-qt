@@ -133,11 +133,31 @@ MainWindow::MainWindow(QWidget *parent):
     ///////////////
     // Do layout
     // Tabs
-    m_notebook->addTab(createTab(m_streamsVBox, m_noStreamsLabel, m_playbackTypeComboBox), tr("&Playback"));
-    m_notebook->addTab(createTab(m_recsVBox, m_noRecsLabel, m_recordingTypeComboBox), tr("&Recording"));
-    m_notebook->addTab(createTab(m_outputsVBox, m_noOutputsLabel, m_outputTypeComboBox), tr("&Output Devices"));
-    m_notebook->addTab(createTab(m_inputDevicesVBox, m_noInputDevicesLabel, m_inputDeviceTypeComboBox), tr("&Input Devices"));
-    m_notebook->addTab(createTab(m_cardsVBox, m_noCardsLabel, m_showVolumeMetersCheckButton), tr("&Configuration"));
+    m_notebook->addTab(
+            createTab(m_streamsVBox, m_noStreamsLabel, m_playbackTypeComboBox),
+            QIcon::fromTheme("audio-radio-symbolic"), // idk, is at least distinguishable (spelling is hard)
+            tr("&Playback")
+            );
+    m_notebook->addTab(
+            createTab(m_recsVBox, m_noRecsLabel, m_recordingTypeComboBox),
+            QIcon::fromTheme("media-record-symbolic"),
+            tr("&Recording")
+            );
+    m_notebook->addTab(
+            createTab(m_outputsVBox, m_noOutputsLabel, m_outputTypeComboBox),
+            QIcon::fromTheme("audio-speakers-symbolic"),
+            tr("&Output Devices")
+            );
+    m_notebook->addTab(
+            createTab(m_inputDevicesVBox, m_noInputDevicesLabel, m_inputDeviceTypeComboBox),
+            QIcon::fromTheme("audio-input-microphone-symbolic"),
+            tr("&Input Devices")
+            );
+    m_notebook->addTab(
+            createTab(m_cardsVBox, m_noCardsLabel, m_showVolumeMetersCheckButton),
+            QIcon::fromTheme("settings-configure"),
+            tr("&Configuration")
+            );
 
     layout()->addWidget(m_notebook);
     layout()->addWidget(m_connectingLabel);
