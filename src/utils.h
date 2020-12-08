@@ -72,13 +72,65 @@ namespace utils {
     }
 
     template<typename T>
+    inline bool heuristicIsHeadset(const T &info) {
+        const QString bus = readProperty(info, PA_PROP_DEVICE_BUS);
+
+        if (bus != QLatin1String("usb")) {
+            return false;
+        }
+
+        const QString vendor = readProperty(info, PA_PROP_DEVICE_VENDOR_ID);
+
+        // Vendors that only produce USB headsets, not other kinds of USB audio cards
+
+        // Logitech
+        if (vendor == QLatin1String("046d")) {
+            return true;
+        }
+        // Kingston
+        if (vendor == QLatin1String("0951")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    template<typename T>
+    inline bool heuristicIsDisplay(const T &info) {
+        const QString description = utils::readProperty(info, PA_PROP_DEVICE_DESCRIPTION);
+
+        if (description.contains(QLatin1String("hdmi"), Qt::CaseInsensitive)) {
+            // Logitech USB headset
+            return true;
+        }
+
+        return false;
+    }
+
+
+    template<typename T>
     inline QIcon deviceIcon(const T &info) {
         static const QIcon defaultIcon = QIcon::fromTheme("audio-card");
+        static const QIcon headsetIcon = QIcon::fromTheme("audio-headset");
+        static const QIcon hdmiIcon = QIcon::fromTheme("tv");
+
+        // Trust our own heuristics more than pulseaudio/udev
+        if (heuristicIsHeadset(info)) {
+            return headsetIcon;
+        }
+        if (heuristicIsDisplay(info)) {
+            return hdmiIcon;
+        }
 
         const QString iconName = readProperty(info, PA_PROP_DEVICE_ICON_NAME);
         if (iconName.isEmpty()) {
-            return defaultIcon;
+            if (heuristicIsHeadset(info)) {
+                return headsetIcon;
+            } else {
+                return defaultIcon;
+            }
         }
+
         QIcon icon = QIcon::fromTheme(iconName);
         if (icon.isNull()) {
             return defaultIcon;
