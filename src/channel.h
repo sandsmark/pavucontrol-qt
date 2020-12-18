@@ -39,6 +39,8 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 };
 
 class Channel : public QObject

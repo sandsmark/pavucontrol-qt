@@ -28,6 +28,8 @@
 #include <QPainter>
 #include <QDebug>
 #include <QStyleOptionSlider>
+#include <QMouseEvent>
+#include <QContextMenuEvent>
 
 constexpr int SLIDER_SNAP = 2;
 static inline int paVolume2Percent(pa_volume_t vol)
@@ -60,6 +62,25 @@ void NotchedSlider::paintEvent(QPaintEvent *e)
     p.drawLine(tickX, 0, tickX, height());
 
     QSlider::paintEvent(e);
+}
+
+void NotchedSlider::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::RightButton) {
+        QSlider::mousePressEvent(event);
+        return;
+    }
+    event->accept();
+    setValue(paVolume2Percent(PA_VOLUME_NORM));
+}
+
+void NotchedSlider::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (event->reason() == QContextMenuEvent::Mouse) {
+        // swallow the right click
+        return;
+    }
+    QSlider::contextMenuEvent(event);
 }
 
 /*** ChannelWidget ***/
