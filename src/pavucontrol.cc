@@ -691,11 +691,11 @@ void connect_to_pulse(MainWindow *w)
 
     if (pa_context_connect(context, nullptr, PA_CONTEXT_NOFAIL, nullptr) < 0) {
         if (pa_context_errno(context) == PA_ERR_INVALID) {
-            w->setConnectingMessage(QObject::tr("Connection to PulseAudio failed. Automatic retry in 5s\n\n"
-                                                "In this case this is likely because PULSE_SERVER in the Environment/X11 Root Window Properties\n"
-                                                "or default-server in client.conf is misconfigured.\n"
-                                                "This situation can also arise when PulseAudio crashed and left stale details in the X11 Root Window.\n"
-                                                "If this is the case, then PulseAudio should autospawn again, or if this is not configured you should\n"
+            w->setConnectingMessage(QObject::tr("Connection to PulseAudio failed. Automatic retry in 5s<br><br>"
+                                                "In this case this is likely because PULSE_SERVER in the Environment/X11 Root Window Properties<br>"
+                                                "or default-server in client.conf is misconfigured.<br>"
+                                                "This situation can also arise when PulseAudio crashed and left stale details in the X11 Root Window.<br>"
+                                                "If this is the case, then PulseAudio should autospawn again, or if this is not configured you should<br>"
                                                 "run start-pulseaudio-x11 manually.").toUtf8().constData());
             reconnect_timeout = 5;
         } else {

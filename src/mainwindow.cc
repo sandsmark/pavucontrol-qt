@@ -118,6 +118,8 @@ MainWindow::MainWindow(QWidget *parent):
 
 
     m_connectingLabel = new QLabel;
+    m_connectingLabel->setWordWrap(true);
+    m_connectingLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
     m_noStreamsLabel = new QLabel("<i>No application is currently playing audio.</i>");
     m_noRecsLabel = new QLabel(tr("<i>No application is currently recording audio.</i>"));
     m_noOutputsLabel = new QLabel(tr("<i>No output devices available</i>"));
