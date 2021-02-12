@@ -74,6 +74,7 @@ MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
 
     peakProgressBar = new QProgressBar;
     peakProgressBar->setTextVisible(false);
+    peakProgressBar->setMaximumHeight(4 /* FIXME: hardcoded */);
     peakProgressBar->hide();
 }
 
