@@ -27,6 +27,7 @@
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QToolButton>
+#include <QStyle>
 
 /*** MinimalStreamWidget ***/
 MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
@@ -74,7 +75,9 @@ MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
 
     peakProgressBar = new QProgressBar;
     peakProgressBar->setTextVisible(false);
-    peakProgressBar->setMaximumHeight(4 /* FIXME: hardcoded */);
+    peakProgressBar->setMaximumHeight(4 +
+            2 * peakProgressBar->style()->pixelMetric(QStyle::PM_DefaultFrameWidth)
+        );
     peakProgressBar->hide();
 }
 
