@@ -62,7 +62,6 @@ protected Q_SLOTS:
 
 public:
     bool can_decibel;
-    bool volumeScaleEnabled;
     bool last;
 
     QLabel *channelLabel;

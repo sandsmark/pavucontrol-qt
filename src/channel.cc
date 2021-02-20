@@ -88,7 +88,6 @@ void NotchedSlider::contextMenuEvent(QContextMenuEvent *event)
 Channel::Channel(QVBoxLayout *parent) :
     QObject(parent),
     can_decibel(false),
-    volumeScaleEnabled(true),
     last(false)
 {
     channelLabel = new QLabel(nullptr);
@@ -139,9 +138,8 @@ void Channel::setVolume(pa_volume_t volume)
         volumeLabel->setText(tr("%1%", "volume slider label [X%]").arg(v));
     }
 
-    volumeScaleEnabled = false;
+    const QSignalBlocker blocker(volumeScale);
     volumeScale->setValue(v);
-    volumeScaleEnabled = true;
 }
 
 void Channel::setVisible(bool visible)
@@ -161,10 +159,6 @@ void Channel::setEnabled(bool enabled)
 void Channel::onVolumeScaleValueChanged(int value)
 {
 
-    if (!volumeScaleEnabled) {
-        return;
-    }
-
     if (minimalStreamWidget->updating) {
         return;
     }
@@ -174,10 +168,6 @@ void Channel::onVolumeScaleValueChanged(int value)
 
 void Channel::onVolumeScaleSliderMoved(int value)
 {
-    if (!volumeScaleEnabled) {
-        return;
-    }
-
     if (minimalStreamWidget->updating) {
         return;
     }
@@ -185,9 +175,8 @@ void Channel::onVolumeScaleSliderMoved(int value)
     const int current_value = volumeScale->value();
 
     if (current_value == 100 && qAbs(value - current_value) <= SLIDER_SNAP) {
-        volumeScale->blockSignals(true);
+        const QSignalBlocker blocker(volumeScale);
         volumeScale->setSliderPosition(current_value);
-        volumeScale->blockSignals(false);
         return;
     }
 
