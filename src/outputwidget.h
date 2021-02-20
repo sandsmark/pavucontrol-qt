@@ -53,9 +53,13 @@ public:
     void setDigital(bool);
 
 signals:
-    void requestBop(const QString &device, const pa_volume_t volume);
+    void requestBop(const int index, const pa_volume_t volume);
 
 protected Q_SLOTS:
     void onPortChange() override;
     void onEncodingsChange();
+
+private:
+    static void onVolumeUpdateComplete(pa_context *c, int success, void *userdata);
+    QTimer m_bopTimer;
 };

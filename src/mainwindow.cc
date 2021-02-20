@@ -420,7 +420,7 @@ bool MainWindow::updateOutputWidget(const pa_sink_info &info)
         outputWidget = m_outputWidgets[info.index];
     } else {
         m_outputWidgets[info.index] = outputWidget = new OutputWidget(this);
-        connect(outputWidget, &OutputWidget::requestBop, m_popPlayer, &WavPlay::playSound);
+        connect(outputWidget, &OutputWidget::requestBop, this, &MainWindow::onPlaybackBopRequested, Qt::QueuedConnection);
         outputWidget->setChannelMap(info.channel_map, !!(info.flags & PA_SINK_DECIBEL_VOLUME));
         m_outputsVBox->layout()->addWidget(outputWidget);
         outputWidget->index = info.index;
@@ -695,7 +695,7 @@ void MainWindow::updatePlaybackWidget(const pa_sink_input_info &info)
         }
     } else {
         m_playbackWidgets[info.index] = playbackWidget = new PlaybackWidget(this);
-        connect(playbackWidget, &PlaybackWidget::requestBop, this, &MainWindow::onPlaybackBopRequested);
+        connect(playbackWidget, &PlaybackWidget::requestBop, this, &MainWindow::onPlaybackBopRequested, Qt::QueuedConnection);
         playbackWidget->setChannelMap(info.channel_map, true);
         m_streamsVBox->layout()->addWidget(playbackWidget);
 

@@ -26,6 +26,7 @@
 #include <QCheckBox>
 #include <QToolButton>
 #include <QComboBox>
+#include <QDebug>
 
 OutputWidget::OutputWidget(MainWindow *parent) :
     DeviceWidget(parent, "sink")
@@ -69,17 +70,34 @@ OutputWidget::OutputWidget(MainWindow *parent) :
     }
 #endif
 
+    m_bopTimer.setInterval(100);
+    m_bopTimer.setSingleShot(true);
+    // invalid -> automatic, thanks for the nice API libpulse
+    connect(&m_bopTimer, &QTimer::timeout, this, [this]() { requestBop(index, PA_VOLUME_INVALID); });
+}
+
+void OutputWidget::onVolumeUpdateComplete(pa_context *c, int success, void *userdata)
+{
+    Q_UNUSED(c);
+    if (!success) {
+        qWarning() << "Volume change failed";
+        return;
+    }
+
+    // libpulse apparently calls the callback _before_ the actual update is complete...
+    // So we have a 100ms timer and hope for the best
+    OutputWidget *that = reinterpret_cast<OutputWidget*>(userdata);
+    that->m_bopTimer.start();
 }
 
 void OutputWidget::executeVolumeUpdate()
 {
     pa_operation *o;
 
-    if (!(o = pa_context_set_sink_volume_by_index(get_context(), index, &volume, nullptr, nullptr))) {
+    if (!(o = pa_context_set_sink_volume_by_index(get_context(), index, &volume, &OutputWidget::onVolumeUpdateComplete, this))) {
         show_error(tr("pa_context_set_sink_volume_by_index() failed").toUtf8().constData());
         return;
     }
-    emit requestBop(name, PA_VOLUME_INVALID); // invalid -> automatic, thanks for the nice API libpulse
 
     pa_operation_unref(o);
 }

@@ -26,6 +26,7 @@
 #include <QMenu>
 #include <QLabel>
 #include <QToolButton>
+#include <QDebug>
 
 
 class SinkMenuItem : public QAction
@@ -101,23 +102,30 @@ uint32_t PlaybackWidget::playbackIndex()
     return mSinkIndex;
 }
 
+static void onVolumeChanged(pa_context *c, int success, void *userdata)
+{
+    Q_UNUSED(c);
+    if (!success) {
+        qWarning() << "Volume change failed";
+        return;
+    }
+
+    PlaybackWidget *that = reinterpret_cast<PlaybackWidget*>(userdata);
+    emit that->requestBop(that->mSinkIndex, that->maxVolume);
+}
+
 void PlaybackWidget::executeVolumeUpdate()
 {
     pa_operation *o;
 
-    if (!(o = pa_context_set_sink_input_volume(get_context(), index, &volume, nullptr, nullptr))) {
+    maxVolume = pa_cvolume_max(&volume);;
+
+    if (!(o = pa_context_set_sink_input_volume(get_context(), index, &volume, onVolumeChanged, this))) {
         show_error(tr("pa_context_set_sink_input_volume() failed").toUtf8().constData());
         return;
     }
 
     pa_operation_unref(o);
-
-    pa_volume_t maxVolume = 0;
-    for (int i = 0; i < volume.channels; i++) {
-        maxVolume = std::max(maxVolume, volume.values[i]);
-    }
-
-    emit requestBop(mSinkIndex, maxVolume);
 }
 
 void PlaybackWidget::onMuteToggleButton()

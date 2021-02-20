@@ -22,6 +22,7 @@
 
 #include "pavucontrol.h"
 
+#include <pulse/volume.h>
 #include "streamwidget.h"
 #include <QAction>
 
@@ -37,6 +38,8 @@ public:
 
     PlaybackType type;
 
+    uint32_t mSinkIndex;
+    pa_volume_t maxVolume = 0;
     uint32_t index, clientIndex;
     void setPlaybackIndex(uint32_t idx);
     uint32_t playbackIndex();
@@ -50,7 +53,6 @@ signals:
     void requestBop(const int outputIndex, const pa_volume_t volume);
 
 private:
-    uint32_t mSinkIndex;
 
     void buildMenu();
 
