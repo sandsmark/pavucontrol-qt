@@ -67,7 +67,7 @@ void NotchedSlider::paintEvent(QPaintEvent *e)
 void NotchedSlider::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::RightButton) {
-        QSlider::mousePressEvent(event);
+        QSlider::mouseReleaseEvent(event);
         return;
     }
     event->accept();
