@@ -80,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent):
     m_config_filename(nullptr)
 {
     m_popPlayer = new WavPlay(":/data/bop.wav", this);
+    connect(this, &MainWindow::pulseConnected, m_popPlayer, &WavPlay::uploadSample, Qt::QueuedConnection);
 
     setLayout(new QVBoxLayout);
 
@@ -994,6 +995,7 @@ void MainWindow::setConnectionState(bool connected)
         } else {
             resize(1024, 768);
         }
+        emit pulseConnected();
     } else {
         config.setValue(QStringLiteral("window/size"), size());
         m_notebook->hide();

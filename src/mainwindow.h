@@ -110,6 +110,9 @@ public:
 
     QTabWidget *m_notebook; // todo: pull in necessary code from pavucontrol.cc
 
+Q_SIGNALS:
+    void pulseConnected();
+
 private:
     int iconSize();
 

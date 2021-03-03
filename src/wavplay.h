@@ -24,10 +24,9 @@ public:
 
 public slots:
     void playSound(const QString &device, const pa_volume_t volume = PA_VOLUME_INVALID);
-
-private:
     void uploadSample();
 
+private:
     static void uploadStartedCallback(pa_context *c, int success, void *userdata);
     static void stateCallback(pa_stream *s, void *userdata);
     static void requestCallback(pa_stream *s, size_t length, void *userdata);
