@@ -30,6 +30,7 @@ class QLabel;
 class QVBoxLayout;
 class QHBoxLayout;
 class QToolButton;
+class QPropertyAnimation;
 
 class MinimalStreamWidget : public QFrame//QGroupBox
 {
@@ -38,8 +39,6 @@ public:
     MinimalStreamWidget(QWidget *parent = nullptr);
     void initPeakProgressBar(QVBoxLayout *channelsList);
 
-    QProgressBar *peakProgressBar;
-    double lastPeak;
     pa_stream *peak;
 
     bool updating;
@@ -65,6 +64,9 @@ public:
 private :
     bool volumeMeterVisible;
 
+    QPropertyAnimation *m_peakAnimation;
+    QProgressBar *m_peakProgressBar;
+    double m_lastPeak;
 };
 
 #endif

@@ -28,11 +28,12 @@
 #include <QVBoxLayout>
 #include <QToolButton>
 #include <QStyle>
+#include <QPropertyAnimation>
 
 /*** MinimalStreamWidget ***/
 MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
     QFrame(parent),
-    lastPeak(0),
+    m_lastPeak(0),
     peak(nullptr),
     updating(false),
     volumeMeterEnabled(false),
@@ -73,17 +74,20 @@ MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
     channelsList = new QVBoxLayout;
     mainLayout->addLayout(channelsList);
 
-    peakProgressBar = new QProgressBar;
-    peakProgressBar->setTextVisible(false);
-    peakProgressBar->setMaximumHeight(4 +
-            2 * peakProgressBar->style()->pixelMetric(QStyle::PM_DefaultFrameWidth)
+    m_peakProgressBar = new QProgressBar;
+    m_peakProgressBar->setTextVisible(false);
+    m_peakProgressBar->setMaximumHeight(4 +
+            2 * m_peakProgressBar->style()->pixelMetric(QStyle::PM_DefaultFrameWidth)
         );
-    peakProgressBar->hide();
+    m_peakProgressBar->hide();
+
+    m_peakAnimation = new QPropertyAnimation(m_peakProgressBar, "value", m_peakProgressBar);
+    m_peakAnimation->setDuration(50);
 }
 
 void MinimalStreamWidget::initPeakProgressBar(QVBoxLayout *channelsGrid)
 {
-    channelsGrid->addWidget(peakProgressBar);
+    channelsGrid->addWidget(m_peakProgressBar);
 //    channelsGrid->addWidget(peakProgressBar, channelsGrid->rowCount(), 0, 1, -1);
 }
 
@@ -92,20 +96,28 @@ void MinimalStreamWidget::initPeakProgressBar(QVBoxLayout *channelsGrid)
 void MinimalStreamWidget::updatePeak(double v)
 {
 
-    if (lastPeak >= DECAY_STEP)
-        if (v < lastPeak - DECAY_STEP) {
-            v = lastPeak - DECAY_STEP;
+    if (m_lastPeak >= DECAY_STEP)
+        if (v < m_lastPeak - DECAY_STEP) {
+            v = m_lastPeak - DECAY_STEP;
         }
 
-    lastPeak = v;
+    m_lastPeak = v;
 
     if (v >= 0) {
-        peakProgressBar->setEnabled(true);
-        int value = qRound(v * peakProgressBar->maximum());
-        peakProgressBar->setValue(value);
+        if (m_peakProgressBar->maximum() != m_peakProgressBar->width() * 2) {
+            m_peakProgressBar->setMaximum(m_peakProgressBar->width() * 2);
+        }
+        m_peakProgressBar->setEnabled(true);
+        int value = qRound(v * m_peakProgressBar->maximum());
+        //m_peakProgressBar->setValue(value);
+        m_peakAnimation->setEndValue(value);
+        if (!m_peakAnimation->state() != QAbstractAnimation::Running) {
+            m_peakAnimation->start();
+        }
     } else {
-        peakProgressBar->setEnabled(false);
-        peakProgressBar->setValue(0);
+        m_peakProgressBar->setEnabled(false);
+        m_peakAnimation->setEndValue(0);
+        //m_peakProgressBar->setValue(0);
     }
 
     enableVolumeMeter();
@@ -120,7 +132,7 @@ void MinimalStreamWidget::enableVolumeMeter()
     volumeMeterEnabled = true;
 
     if (volumeMeterVisible) {
-        peakProgressBar->show();
+        m_peakProgressBar->show();
     }
 }
 
@@ -130,9 +142,9 @@ void MinimalStreamWidget::setVolumeMeterVisible(bool v)
 
     if (v) {
         if (volumeMeterEnabled) {
-            peakProgressBar->show();
+            m_peakProgressBar->show();
         }
     } else {
-        peakProgressBar->hide();
+        m_peakProgressBar->hide();
     }
 }
