@@ -679,8 +679,7 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
 
 void MainWindow::updatePlaybackWidget(const pa_sink_input_info &info)
 {
-    if (utils::readProperty(info, "module-stream-restore.id") == "sink-input-by-media-role:event") {
-//            qDebug("%s", tr("Ignoring sink-input due to it being designated as an event and thus handled by the Event widget").toUtf8().constData());
+    if (utils::shouldIgnoreApp(info)) { // Those handled by the generic event volume control
         return;
     }
 
@@ -740,13 +739,7 @@ void MainWindow::updatePlaybackWidget(const pa_sink_input_info &info)
 
 void MainWindow::updateRecordingWidget(const pa_source_output_info &info)
 {
-    static const QSet<QString> mixers({
-            "org.PulseAudio.pavucontrol",
-            "org.gnome.VolumeControl",
-            "org.kde.kmixd"
-        });
-
-    if (mixers.contains(utils::readProperty(info, PA_PROP_APPLICATION_ID))) {
+    if (utils::shouldIgnoreApp(info)) { // Those handled by the generic event volume control
         return;
     }
 

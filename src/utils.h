@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QString>
+#include <QSet>
 #include <QIcon>
 
 #include <pulse/proplist.h>
@@ -137,6 +138,32 @@ namespace utils {
         }
 
         return icon;
+    }
+
+    // pipewire is missing most of the "proper" properties, so we hardcode this instead
+    static const QSet<QString> mixers({
+            "org.PulseAudio.pavucontrol",
+            "org.gnome.VolumeControl",
+            "org.kde.kmixd"
+            });
+
+    template<typename T>
+    inline bool shouldIgnoreApp(const T &info) {
+        if (mixers.contains(utils::readProperty(info, PA_PROP_APPLICATION_ID))) {
+            return true;
+        }
+
+        // Handled by system event thing
+        // Does not work with pipewire, hence the test above as well
+        if (utils::readProperty(info, "module-stream-restore.id") == "sink-input-by-media-role:event") {
+            return true;
+        }
+        // Empty from pipewire
+        if (utils::readProperty(info, PA_PROP_MEDIA_ROLE) == "event") {
+            return true;
+        }
+
+        return false;
     }
 }
 
