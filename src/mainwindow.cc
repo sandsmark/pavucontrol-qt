@@ -1339,5 +1339,4 @@ void MainWindow::onPlaybackBopRequested(const uint32_t outputIndex, const pa_vol
     }
 
     m_popPlayer->playSound(m_outputWidgets[outputIndex]->name, volume);
-    qDebug() << m_outputWidgets[outputIndex]->name;
 }
