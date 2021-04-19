@@ -47,8 +47,6 @@ public:
     virtual void onLockToggleButton() = 0;
     virtual void updateChannelVolume(int channel, pa_volume_t v) = 0;
 
-    bool volumeMeterEnabled;
-    void enableVolumeMeter();
     void updatePeak(double v);
     void setVolumeMeterVisible(bool v);
 
@@ -62,11 +60,8 @@ public:
     QToolButton *lockToggleButton;
 
 private :
-    bool volumeMeterVisible;
-
     QPropertyAnimation *m_peakAnimation;
     QProgressBar *m_peakProgressBar;
-    double m_lastPeak;
 };
 
 #endif

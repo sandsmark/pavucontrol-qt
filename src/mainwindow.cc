@@ -590,6 +590,7 @@ void MainWindow::createMonitorStreamForPlayback(PlaybackWidget *playbackWidget, 
         playbackWidget->peak = nullptr;
     }
 
+    playbackWidget->setVolumeMeterVisible(true);
     playbackWidget->peak = createMonitorStreamForSource(m_outputWidgets[sink_idx]->monitor_index, playbackWidget->index);
 }
 
@@ -612,6 +613,7 @@ void MainWindow::updateInputDeviceWidget(const pa_source_info &info)
         inputDeviceWidget->setVolumeMeterVisible(m_showVolumeMetersCheckButton->isChecked());
 
         if (pa_context_get_server_protocol_version(get_context()) >= 13) {
+            inputDeviceWidget->setVolumeMeterVisible(true);
             inputDeviceWidget->peak = createMonitorStreamForSource(info.index, -1);
         }
     }

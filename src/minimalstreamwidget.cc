@@ -33,11 +33,8 @@
 /*** MinimalStreamWidget ***/
 MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
     QFrame(parent),
-    m_lastPeak(0),
     peak(nullptr),
-    updating(false),
-    volumeMeterEnabled(false),
-    volumeMeterVisible(true)
+    updating(false)
 {
     setFrameShadow(QFrame::Raised);
     setFrameShape(QFrame::StyledPanel);
@@ -75,76 +72,35 @@ MinimalStreamWidget::MinimalStreamWidget(QWidget *parent) :
     mainLayout->addLayout(channelsList);
 
     m_peakProgressBar = new QProgressBar;
+    m_peakProgressBar->setVisible(false);
     m_peakProgressBar->setTextVisible(false);
     m_peakProgressBar->setMaximumHeight(4 +
             2 * m_peakProgressBar->style()->pixelMetric(QStyle::PM_DefaultFrameWidth)
         );
-    m_peakProgressBar->hide();
 
     m_peakAnimation = new QPropertyAnimation(m_peakProgressBar, "value", m_peakProgressBar);
-    m_peakAnimation->setDuration(50);
+    m_peakAnimation->setDuration(100);
 }
 
 void MinimalStreamWidget::initPeakProgressBar(QVBoxLayout *channelsGrid)
 {
     channelsGrid->addWidget(m_peakProgressBar);
-//    channelsGrid->addWidget(peakProgressBar, channelsGrid->rowCount(), 0, 1, -1);
 }
-
-#define DECAY_STEP .04
 
 void MinimalStreamWidget::updatePeak(double v)
 {
-
-    if (m_lastPeak >= DECAY_STEP)
-        if (v < m_lastPeak - DECAY_STEP) {
-            v = m_lastPeak - DECAY_STEP;
-        }
-
-    m_lastPeak = v;
-
-    if (v >= 0) {
-        if (m_peakProgressBar->maximum() != m_peakProgressBar->width() * 2) {
-            m_peakProgressBar->setMaximum(m_peakProgressBar->width() * 2);
-        }
-        m_peakProgressBar->setEnabled(true);
-        int value = qRound(v * m_peakProgressBar->maximum());
-        //m_peakProgressBar->setValue(value);
-        m_peakAnimation->setEndValue(value);
-        if (!m_peakAnimation->state() != QAbstractAnimation::Running) {
-            m_peakAnimation->start();
-        }
-    } else {
-        m_peakProgressBar->setEnabled(false);
-        m_peakAnimation->setEndValue(0);
-        //m_peakProgressBar->setValue(0);
+    if (m_peakProgressBar->maximum() != m_peakProgressBar->width()) {
+        m_peakProgressBar->setMaximum(m_peakProgressBar->width());
     }
 
-    enableVolumeMeter();
-}
-
-void MinimalStreamWidget::enableVolumeMeter()
-{
-    if (volumeMeterEnabled) {
-        return;
-    }
-
-    volumeMeterEnabled = true;
-
-    if (volumeMeterVisible) {
-        m_peakProgressBar->show();
+    int value = qRound(v * m_peakProgressBar->maximum());
+    m_peakAnimation->setEndValue(value);
+    if (!m_peakAnimation->state() != QAbstractAnimation::Running) {
+        m_peakAnimation->start();
     }
 }
 
 void MinimalStreamWidget::setVolumeMeterVisible(bool v)
 {
-    volumeMeterVisible = v;
-
-    if (v) {
-        if (volumeMeterEnabled) {
-            m_peakProgressBar->show();
-        }
-    } else {
-        m_peakProgressBar->hide();
-    }
+    m_peakProgressBar->setVisible(v);
 }
