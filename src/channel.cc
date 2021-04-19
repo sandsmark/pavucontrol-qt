@@ -52,14 +52,20 @@ NotchedSlider::NotchedSlider(Qt::Orientation orientation, QWidget *parent) :
 
 void NotchedSlider::paintEvent(QPaintEvent *e)
 {
-    QStyleOptionSlider options;
-    initStyleOption(&options);
-    QPainter p(this);
-    const float lineWidth = 8;
-    p.setPen(QPen(palette().dark(), lineWidth));
-    const int tickX = (float(PA_VOLUME_NORM) / (PA_VOLUME_UI_MAX - PA_VOLUME_MUTED)) * options.rect.width() - style()->pixelMetric(QStyle::PM_SliderTickmarkOffset) + options.rect.x();
-    const int tickHeight = style()->pixelMetric(QStyle::PM_SliderThickness);
-    p.drawLine(tickX, 0, tickX, height());
+    // Indicate the default 100% value
+    const int defaultValue = paVolume2Percent(PA_VOLUME_NORM);
+    if (value() != defaultValue) {
+        QStyleOptionSlider options;
+        initStyleOption(&options);
+        options.subControls = QStyle::SC_SliderHandle;
+        options.sliderValue = defaultValue;
+        options.sliderPosition = options.sliderValue;
+        options.state = QStyle::State_Enabled | QStyle::State_Horizontal | QStyle::State_Active;
+
+        QPainter p(this);
+        p.setOpacity(0.9);
+        style()->drawComplexControl(QStyle::CC_Slider, &options, &p, this);
+    }
 
     QSlider::paintEvent(e);
 }
@@ -117,8 +123,6 @@ Channel::Channel(QVBoxLayout *parent) :
 
     volumeScale->setRange(paVolume2Percent(PA_VOLUME_MUTED), paVolume2Percent(PA_VOLUME_UI_MAX));
     volumeScale->setValue(paVolume2Percent(PA_VOLUME_NORM));
-    volumeScale->setTickInterval(paVolume2Percent(PA_VOLUME_NORM) / 10);
-    volumeScale->setTickPosition(QSlider::TicksBothSides);
     volumeScale->setTracking(false);
     setBaseVolume(PA_VOLUME_NORM);
 
